@@ -10,7 +10,8 @@ const {ipcRenderer} = require('electron')
 var repoSidebar = document.getElementById('repo-sidebar'),
 	repoButtonTemplate = repoSidebar.querySelector('.template'),
 	issueList = document.getElementById('issue-list-inner'),
-	issueListTemplate = issueList.querySelector('.template');
+	issueListTemplate = issueList.querySelector('.template'),
+	issueContents = document.getElementById('issue-contents');
 
 repoButtonTemplate.classList.remove('template');
 issueListTemplate.classList.remove('template');
@@ -25,21 +26,22 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
   	repoSidebar.innerHTML += repoButtonTemplate.outerHTML;
   });
 
-  var sendRequest = function(id){
-  	ipcRenderer.send('show-issues', id);
-  }
-
   var repoButtons = document.querySelectorAll('#repo-sidebar li');
   [].map.call(repoButtons, function(elem){
   	elem.addEventListener('click', function(){
-  		sendRequest(elem.dataset.id);
+  		repoButtons.forEach(function(e, i){
+  			e.classList.contains('active') ? e.classList.remove('active') : "";
+  		});
+  		!elem.classList.contains('active') ? elem.classList.add('active') : "";
+  		ipcRenderer.send('show-issues', elem.dataset.id);
   	});
   });
+
 }).on('issues', (event, message) => {
 	issueList.innerHTML = "";
 	console.log(message);
 	message.values.forEach(function(e, i){
-		issueListTemplate.dataset.id = e.id;
+		issueListTemplate.dataset.id = message.repo_id+"/issues/"+e.id;
 		issueListTemplate.querySelector('.issue-id').innerHTML = "#"+e.id;
 		issueListTemplate.querySelector('.issue-date').innerHTML = e.updated_on;
 		issueListTemplate.querySelector('.issue-title').innerHTML = e.title;
@@ -52,4 +54,26 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 		}
 		issueList.innerHTML += issueListTemplate.outerHTML;
 	});
+
+	var issueButtons = document.querySelectorAll('#issue-list-inner .issue-box');
+	[].map.call(issueButtons, function(elem){
+		elem.addEventListener('click', function(){
+			issueButtons.forEach(function(e, i){
+				e.classList.contains('active') ? e.classList.remove('active') : "";
+			});
+			!elem.classList.contains('active') ? elem.classList.add('active') : "";
+			ipcRenderer.send('show-issue', elem.dataset.id);
+		});
+	});
+
+}).on('issue', (event, message) => {
+
+	console.log(message);
+	issueContents.querySelector('.issue-id').innerHTML = "#"+message.id;
+	issueContents.querySelector('#issue-title').innerHTML = message.title;
+	issueContents.querySelector('.issue-description img').setAttribute('src', message.reporter.links.avatar.href);
+	issueContents.querySelector('.issue-description .user-name').innerHTML = message.reporter.display_name;
+	issueContents.querySelector('.issue-description .posted-time').innerHTML = message.created_on;
+	issueContents.querySelector('.issue-description p.issue-content').innerHTML = message.content.html;
+
 });

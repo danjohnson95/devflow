@@ -31,7 +31,12 @@ body{
 }
 
 #sidebar ul li:hover:not(.title){
-	color: #f00;
+	color: #0077f5;
+}
+
+#sidebar ul li.active{
+	font-weight: bold;
+	color: #0077f5;
 }
 
 #sidebar ul li.title{
@@ -81,7 +86,12 @@ body{
 #issue-list ul li.issue-box{
 	list-style: none;
 	border-bottom: 1px solid rgba(0,0,0,0.05);
-	padding: 1em 1.5em;
+	padding: 1.5em 1.5em 1.5em 2em;
+}
+
+#issue-list ul li.issue-box.active{
+	background-color: #f4f9ff;
+	color: #0077f5;
 }
 
 #issue-list ul li.issue-box .issue-details{
@@ -136,7 +146,7 @@ body{
 #issue-contents #issue-contents-head{
 	background-color: #fff;
 	border-bottom: 1px solid rgba(0,0,0,0.05);
-	padding: 1em 2em;
+	padding: 1em 2.5em;
 }
 
 #issue-contents #issue-contents-head h1{
@@ -145,20 +155,34 @@ body{
 }
 
 #issue-contents #issue-comments{
-	margin: 1em 2em;
+	margin: 2em 2.5em;
 }
 
 #issue-contents #issue-comments .issue-description{
 	background-color: #fff;
 	border: 1px solid rgba(0,0,0,0.05);
+	border-radius: 5px;
+	padding: 1.5em;
+}
+
+#issue-contents #issue-comments .issue-description .issue-user{
+	padding: 0 0 1em 0;
+	border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+#issue-contents #issue-comments .issue-description .issue-user img{
+	vertical-align: middle;
 	border-radius: 3px;
-	padding: 1em;
+	overflow: hidden;
+	margin-right: 3px;
 }
 
 #issue-contents #issue-comments .issue-description .issue-user .user-name{
 	font-weight: bold;
+	vertical-align: middle;
 }
 
 #issue-contents #issue-comments .issue-description .issue-user .posted-time{
 	color: rgba(0,0,0,0.6);
+	vertical-align: middle;
 }

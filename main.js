@@ -91,8 +91,24 @@ ipcMain.on('show-issues', (event, arg) => {
       "bearer": access_token
     }
   }, function(err, response, body){
-    mainWindow.webContents.send('issues', JSON.parse(body));
+    body = JSON.parse(body);
+    body.repo_id = arg;
+    mainWindow.webContents.send('issues', body);
   });
+
+});
+
+ipcMain.on('show-issue', (event, arg) => {
+
+  console.log(arg);
+  request({
+    url:'https://api.bitbucket.org/2.0/repositories/'+arg,
+    auth: {
+      "bearer": access_token
+    }
+  }, function(err, response, body){
+    mainWindow.webContents.send('issue', JSON.parse(body));
+  })
 
 });
 
