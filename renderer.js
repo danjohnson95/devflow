@@ -9,6 +9,7 @@ const {ipcRenderer} = require('electron')
 
 var repoSidebar = document.getElementById('repo-sidebar'),
 	repoButtonTemplate = repoSidebar.querySelector('.template'),
+	issueListOuter = document.getElementById('issue-list'),
 	issueList = document.getElementById('issue-list-inner'),
 	issueListTemplate = issueList.querySelector('.template'),
 	issueContents = document.getElementById('issue-contents');
@@ -38,6 +39,8 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
   });
 
 }).on('issues', (event, message) => {
+	!issueListOuter.querySelector('#placeholder').classList.contains('hide') ? issueListOuter.querySelector('#placeholder').classList.add('hide') : "";
+	issueContents.querySelector('#placeholder').classList.contains('hide') ? issueContents.querySelector('#placeholder').classList.remove('hide') : "";
 	issueList.innerHTML = "";
 	console.log(message);
 	message.values.forEach(function(e, i){
@@ -67,7 +70,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	});
 
 }).on('issue', (event, message) => {
-
+	!issueContents.querySelector('#placeholder').classList.contains('hide') ? issueContents.querySelector('#placeholder').classList.add('hide') : "";
 	console.log(message);
 	issueContents.querySelector('.issue-id').innerHTML = "#"+message.id;
 	issueContents.querySelector('#issue-title').innerHTML = message.title;
