@@ -4,3 +4,7 @@
 // var bitbucket = require('node-bitbucket-api');
 
 // new Notification('Hi!')
+
+require('electron').ipcRenderer.on('repos', (event, message) => {
+  console.log(message)  // Prints 'whoooooooh!'
+})

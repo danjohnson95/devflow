@@ -2,6 +2,7 @@ body{
 	margin: 0;
 	font-family: 'Roboto', sans-serif;
 	font-size: 13px;
+	-webkit-font-smoothing: antialiased;
 }
 
 #sidebar{
@@ -14,6 +15,27 @@ body{
 	border-right: 1px solid rgba(0,0,0,0.05);
 	box-sizing: border-box;
 }
+
+#sidebar ul{
+	padding: 0;
+}
+
+#sidebar ul li{
+	list-style: none;
+	padding: .5em 20px;
+	margin: .5em 0;
+}
+
+#sidebar ul li:hover:not(.title){
+	color: #f00;
+}
+
+#sidebar ul li.title{
+	text-transform: uppercase;
+	color: rgba(0,0,0,0.6);
+	font-size: .8em;
+}
+
 
 #issue-list{
 	left: 225px;
@@ -31,6 +53,8 @@ body{
 	font-family:'Roboto', sans-serif;
 	border-bottom: 1px solid rgba(0,0,0,0.1);
 	padding: 1em 1.5em;
+	font-size: 13px;
+	-webkit-font-smoothing: antialiased;
 
 }
 
@@ -99,7 +123,7 @@ body{
 
 #issue-contents #issue-contents-head h1{
 	font-weight: normal;
-	font-size: 1.7em;
+	font-size: 1.6em;
 }
 
 #issue-contents #issue-comments{
@@ -114,7 +138,7 @@ body{
 }
 
 #issue-contents #issue-comments .issue-description .issue-user .user-name{
-	font-size: 1.2em;
+	font-weight: bold;
 }
 
 #issue-contents #issue-comments .issue-description .issue-user .posted-time{
