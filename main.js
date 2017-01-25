@@ -12,6 +12,8 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 
+var access_token = null;
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
@@ -42,7 +44,7 @@ function createWindow () {
 
       // This here gets their repos.
       var response = JSON.parse(body);
-      console.log(response.access_token);
+      access_token = response.access_token;
       request({
         url:'https://api.bitbucket.org/2.0/repositories?role=contributor',
         auth: {
@@ -83,6 +85,14 @@ function createWindow () {
 ipcMain.on('show-issues', (event, arg) => {
 
   console.log(arg);
+  request({
+    url:'https://api.bitbucket.org/2.0/repositories/'+arg+'/issues',
+    auth: {
+      "bearer": access_token
+    }
+  }, function(err, response, body){
+    mainWindow.webContents.send('issues', JSON.parse(body));
+  });
 
 });
 

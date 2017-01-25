@@ -5,7 +5,7 @@
 
 // new Notification('Hi!')
 
-const {ipcRenderer} = require('electron')
+const {ipcRenderer,} = require('electron')
 
 var repoSidebar = document.getElementById('repo-sidebar'),
 	repoButtonTemplate = repoSidebar.querySelector('.template');
@@ -15,17 +15,21 @@ repoButtonTemplate.classList.remove('template');
 require('electron').ipcRenderer.on('repos', (event, message) => {
   console.log(message.values);
   message.values.forEach(function(e, i){
-  	repoButtonTemplate.dataset.id = e.fullname;
+  	repoButtonTemplate.dataset.id = e.full_name;
   	repoButtonTemplate.innerHTML = e.name;
   	repoSidebar.innerHTML += repoButtonTemplate.outerHTML;
   });
 
-  var sendRequest = function(){
-  	ipcRenderer.send('show-issues', 'somethinglol');
+  var sendRequest = function(id){
+  	ipcRenderer.send('show-issues', id);
   }
 
   var repoButtons = document.querySelectorAll('#repo-sidebar li');
   [].map.call(repoButtons, function(elem){
-  	elem.addEventListener('click', sendRequest, false);
+  	elem.addEventListener('click', function(){
+  		sendRequest(elem.dataset.id);
+  	});
   });
+}).on('issues', (event, message) => {
+	console.log(message);
 });
