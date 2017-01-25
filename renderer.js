@@ -5,6 +5,8 @@
 
 // new Notification('Hi!')
 
+const {ipcRenderer} = require('electron')
+
 var repoSidebar = document.getElementById('repo-sidebar'),
 	repoButtonTemplate = repoSidebar.querySelector('.template');
 
@@ -17,4 +19,13 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
   	repoButtonTemplate.innerHTML = e.name;
   	repoSidebar.innerHTML += repoButtonTemplate.outerHTML;
   });
-})
+
+  var sendRequest = function(){
+  	ipcRenderer.send('show-issues', 'somethinglol');
+  }
+
+  var repoButtons = document.querySelectorAll('#repo-sidebar li');
+  [].map.call(repoButtons, function(elem){
+  	elem.addEventListener('click', sendRequest, false);
+  });
+});
