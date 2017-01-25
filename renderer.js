@@ -5,6 +5,16 @@
 
 // new Notification('Hi!')
 
+var repoSidebar = document.getElementById('repo-sidebar'),
+	repoButtonTemplate = repoSidebar.querySelector('.template');
+
+repoButtonTemplate.classList.remove('template');
+
 require('electron').ipcRenderer.on('repos', (event, message) => {
-  console.log(message)  // Prints 'whoooooooh!'
+  console.log(message.values);
+  message.values.forEach(function(e, i){
+  	repoButtonTemplate.dataset.id = e.fullname;
+  	repoButtonTemplate.innerHTML = e.name;
+  	repoSidebar.innerHTML += repoButtonTemplate.outerHTML;
+  });
 })

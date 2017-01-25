@@ -26,6 +26,10 @@ body{
 	margin: .5em 0;
 }
 
+#sidebar #repo-sidebar li:nth-child(2){
+	display: none;
+}
+
 #sidebar ul li:hover:not(.title){
 	color: #f00;
 }
