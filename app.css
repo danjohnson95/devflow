@@ -49,8 +49,15 @@ body{
 	width: 340px;
 	border-right: 1px solid rgba(0,0,0,0.1);
 	box-sizing:border-box;
+	overflow-y: scroll;
 }
 
+#issue-list #search-box{
+	position: fixed;
+	top: 0;
+	left: 225px;
+	width: 339px;
+}
 #issue-list #search-box input{
 	border: 0;
 	width: 100%;
@@ -59,12 +66,12 @@ body{
 	padding: 1em 1.5em;
 	font-size: 13px;
 	-webkit-font-smoothing: antialiased;
-
 }
 
 #issue-list ul{
 	padding: 0;
 	margin: 0;
+	padding-top: 41px;
 }
 
 #issue-list ul li.issue-box:first-child{
@@ -90,8 +97,11 @@ body{
 }
 
 #issue-list ul li.issue-box .issue-title{
-	font-size:1.2em;
-	font-weight: bold;
+	font-size:1.1em;
+	font-weight: 400;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
 	margin: 10px 0;
 }
 

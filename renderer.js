@@ -37,9 +37,16 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	console.log(message);
 	message.values.forEach(function(e, i){
 		issueListTemplate.dataset.id = e.id;
-		issueListTemplate.querySelector('.issue-id').innerHTML = e.id;
+		issueListTemplate.querySelector('.issue-id').innerHTML = "#"+e.id;
 		issueListTemplate.querySelector('.issue-date').innerHTML = e.updated_on;
 		issueListTemplate.querySelector('.issue-title').innerHTML = e.title;
+		if(e.assignee){
+			issueListTemplate.querySelector('.issue-assignees span').innerHTML = "@"+e.assignee.username;
+			!issueListTemplate.querySelector('.issue-assignees span').classList.contains('user') ? issueListTemplate.querySelector('.issue-assignees span').classList.add('user') : "";
+		}else{
+			issueListTemplate.querySelector('.issue-assignees span').innerHTML = "nobody";
+			issueListTemplate.querySelector('.issue-assignees span').classList.contains('user') ? issueListTemplate.querySelector('.issue-assignees span').classList.remove('user') : "";
+		}
 		issueList.innerHTML += issueListTemplate.outerHTML;
 	});
 });
