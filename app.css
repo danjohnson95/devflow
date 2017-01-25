@@ -26,7 +26,7 @@ body{
 	margin: .5em 0;
 }
 
-#sidebar #repo-sidebar li:nth-child(2){
+#sidebar #repo-sidebar li.template{
 	display: none;
 }
 
@@ -74,7 +74,7 @@ body{
 	padding-top: 41px;
 }
 
-#issue-list ul li.issue-box:first-child{
+#issue-list ul li.issue-box.template{
 	display: none;
 }
 
