@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Devflow</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+    <link href="app.css" rel="stylesheet">
+  </head>
+  <body>
+
+    <div id="sidebar">
+      <ul>
+        <li>
+          Notifications <label>2</label>
+        </li>
+        <li>
+          Saved <label>5</label>
+        </li>
+        <li>
+          Draft <label>1</label>
+        </li>
+        
+        <hr>
+
+        <li>
+          Organisation Name
+          <ul>
+            <li>
+              Repo 1
+            </li>
+            <li>
+              Repo 2
+            </li>
+            <li>
+              Repo 3
+            </li>
+            <li>
+              Repo 4
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div id="issue-list">
+      <div id="search-box">
+        <input type="search" placeholder="Search">
+      </div>
+      <ul>
+        <li class="issue-box">
+          <div class="issue-details">
+            <strong class="issue-id">#23</strong> &middot; 
+            <span class="version-no">0.0.35</span>
+            <span class="issue-date">3 minutes ago</span>
+          </div>
+          <div class="issue-title">
+            Issue Title
+          </div>
+          <div class="issue-labels">
+            <label>Enhancement</label>
+          </div>
+          <div class="issue-assignees">
+            Assigned to <span class="user">@danjohnson95</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div id="issue-contents">
+      <div id="issue-contents-head">
+        <div id="issue-contents-details">
+          <label class="issue-id">#23</label> &middot;
+          <span class="version-no">0.0.35</span>
+        </div>
+        <h1 id="issue-title">
+          Issue Title
+        </h1>
+        <div id="issue-labels">
+          <label>Enhancement</label>
+        </div>
+        <div id="issue-assignees">
+          Assigned to <span class="user">@danjohnson95</span>
+        </div>        
+      </div>
+
+      <div id="issue-comments">
+        <div class="issue-description">
+          <div class="issue-user">
+            <span class="user-name">Dan Johnson</span>
+            <span class="posted-time">6 minutes ago</span>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <!--<h1>Hello World!</h1>
+    <!-- All of the Node.js APIs are available in this renderer process.
+    We are using Node.js <script>document.write(process.versions.node)</script>,
+    Chromium <script>document.write(process.versions.chrome)</script>,
+    and Electron <script>document.write(process.versions.electron)</script>.-->
+  </body>
+
+  <script>
+    // You can also require other files to run in this process
+    require('./renderer.js')
+  </script>
+</html>

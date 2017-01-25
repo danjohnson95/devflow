@@ -1,0 +1,122 @@
+body{
+	margin: 0;
+	font-family: 'Roboto', sans-serif;
+	font-size: 13px;
+}
+
+#sidebar{
+	width: 225px;
+	position: fixed;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	background-color: #f9f9f9;
+	border-right: 1px solid rgba(0,0,0,0.05);
+	box-sizing: border-box;
+}
+
+#issue-list{
+	left: 225px;
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	width: 340px;
+	border-right: 1px solid rgba(0,0,0,0.1);
+	box-sizing:border-box;
+}
+
+#issue-list #search-box input{
+	border: 0;
+	width: 100%;
+	font-family:'Roboto', sans-serif;
+	border-bottom: 1px solid rgba(0,0,0,0.1);
+	padding: 1em 1.5em;
+
+}
+
+#issue-list ul{
+	padding: 0;
+	margin: 0;
+}
+
+#issue-list ul li.issue-box{
+	list-style: none;
+	border-bottom: 1px solid rgba(0,0,0,0.05);
+	padding: 1em 1.5em;
+}
+
+#issue-list ul li.issue-box .issue-details{
+	
+}
+
+#issue-list ul li.issue-box .issue-details .version-no, #issue-list ul li.issue-box .issue-details .issue-date{
+	color:rgba(0,0,0,0.4);
+}
+
+#issue-list ul li.issue-box .issue-details .issue-date{
+	float: right;
+}
+
+#issue-list ul li.issue-box .issue-title{
+	font-size:1.2em;
+	font-weight: bold;
+	margin: 10px 0;
+}
+
+#issue-list ul li.issue-box .issue-labels label{
+	background-color: #fefbf2;
+	font-weight: bold;
+	border: 1px solid rgba(0,0,0,0.1);
+	border-radius: 3px;
+	color: rgba(0,0,0,0.25);
+	padding: 2px 4px;
+}
+
+#issue-list ul li.issue-box .issue-assignees{
+	color: rgba(0,0,0,0.4);
+	margin-top: 10px;
+}
+
+#issue-list ul li.issue-box .issue-assignees span.user{
+	font-weight: bold;
+	color: #000;
+}
+
+#issue-contents{
+	position: fixed;
+	left: 565px;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	background-color:#fafafa;
+}
+
+#issue-contents #issue-contents-head{
+	background-color: #fff;
+	border-bottom: 1px solid rgba(0,0,0,0.05);
+	padding: 1em 2em;
+}
+
+#issue-contents #issue-contents-head h1{
+	font-weight: normal;
+	font-size: 1.7em;
+}
+
+#issue-contents #issue-comments{
+	margin: 1em 2em;
+}
+
+#issue-contents #issue-comments .issue-description{
+	background-color: #fff;
+	border: 1px solid rgba(0,0,0,0.05);
+	border-radius: 3px;
+	padding: 1em;
+}
+
+#issue-contents #issue-comments .issue-description .issue-user .user-name{
+	font-size: 1.2em;
+}
+
+#issue-contents #issue-comments .issue-description .issue-user .posted-time{
+	color: rgba(0,0,0,0.6);
+}
