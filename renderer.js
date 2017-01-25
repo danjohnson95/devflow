@@ -8,9 +8,12 @@
 const {ipcRenderer,} = require('electron')
 
 var repoSidebar = document.getElementById('repo-sidebar'),
-	repoButtonTemplate = repoSidebar.querySelector('.template');
+	repoButtonTemplate = repoSidebar.querySelector('.template'),
+	issueList = document.getElementById('issue-list-inner'),
+	issueListTemplate = issueList.querySelector('.template');
 
 repoButtonTemplate.classList.remove('template');
+issueListTemplate.classList.remove('template');
 
 require('electron').ipcRenderer.on('repos', (event, message) => {
   console.log(message.values);
@@ -32,4 +35,11 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
   });
 }).on('issues', (event, message) => {
 	console.log(message);
+	message.values.forEach(function(e, i){
+		issueListTemplate.dataset.id = e.id;
+		issueListTemplate.querySelector('.issue-id').innerHTML = e.id;
+		issueListTemplate.querySelector('.issue-date').innerHTML = e.updated_on;
+		issueListTemplate.querySelector('.issue-title').innerHTML = e.title;
+		issueList.innerHTML += issueListTemplate.outerHTML;
+	});
 });

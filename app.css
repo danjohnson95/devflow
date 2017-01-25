@@ -67,6 +67,10 @@ body{
 	margin: 0;
 }
 
+#issue-list ul li.issue-box:first-child{
+	display: none;
+}
+
 #issue-list ul li.issue-box{
 	list-style: none;
 	border-bottom: 1px solid rgba(0,0,0,0.05);
