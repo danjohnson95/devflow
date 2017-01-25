@@ -48,6 +48,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 		issueListTemplate.querySelector('.issue-id').innerHTML = "#"+e.id;
 		issueListTemplate.querySelector('.issue-date').innerHTML = e.updated_on;
 		issueListTemplate.querySelector('.issue-title').innerHTML = e.title;
+		issueListTemplate.querySelector('.issue-labels label').innerHTML = e.kind;
 		if(e.assignee){
 			issueListTemplate.querySelector('.issue-assignees span').innerHTML = "@"+e.assignee.username;
 			!issueListTemplate.querySelector('.issue-assignees span').classList.contains('user') ? issueListTemplate.querySelector('.issue-assignees span').classList.add('user') : "";
@@ -74,6 +75,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	console.log(message);
 	issueContents.querySelector('.issue-id').innerHTML = "#"+message.id;
 	issueContents.querySelector('#issue-title').innerHTML = message.title;
+	issueContents.querySelector('#issue-labels label').innerHTML = message.kind;
 	issueContents.querySelector('.issue-description img').setAttribute('src', message.reporter.links.avatar.href);
 	issueContents.querySelector('.issue-description .user-name').innerHTML = message.reporter.display_name;
 	issueContents.querySelector('.issue-description .posted-time').innerHTML = message.created_on;
