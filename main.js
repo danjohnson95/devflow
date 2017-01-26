@@ -14,6 +14,8 @@ const url = require('url')
 
 const storage = require('electron-json-storage')
 
+const timeAgo = require('./timeago.js');
+
 var access_token = null;
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -22,7 +24,7 @@ let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1100, height: 700})
+  mainWindow = new BrowserWindow({width: 1100, height: 700, titleBarStyle: "hidden-inset"})
 
   storage.get('access_token', function(err, data){
     console.log(data);

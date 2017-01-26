@@ -1,9 +1,11 @@
 body{
 	margin: 0;
-	font-family: 'Roboto', sans-serif;
+	font-family: 'San Francisco', 'Helvetica Neue', sans-serif;
 	font-size: 13px;
 	-webkit-font-smoothing: antialiased;
 	min-width: 1100px;
+	color: rgba(0,0,0,0.8);
+	letter-spacing: .1px;
 }
 
 #sidebar{
@@ -15,6 +17,7 @@ body{
 	background-color: #f9f9f9;
 	border-right: 1px solid rgba(0,0,0,0.05);
 	box-sizing: border-box;
+	padding-top: 25px;
 }
 
 #sidebar ul{
@@ -42,7 +45,7 @@ body{
 
 #sidebar ul li.title{
 	text-transform: uppercase;
-	color: rgba(0,0,0,0.6);
+	color: rgba(0,0,0,0.4);
 	font-size: .8em;
 }
 
@@ -178,7 +181,7 @@ body{
 
 #issue-contents #issue-comments .issue-description{
 	background-color: #fff;
-	border: 1px solid rgba(0,0,0,0.05);
+	border: 1px solid #cce4fd;
 	border-radius: 5px;
 	padding: 1.5em;
 }
