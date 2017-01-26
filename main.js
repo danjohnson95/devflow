@@ -12,6 +12,8 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 
+const storage = require('electron-json-storage')
+
 var access_token = null;
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -22,16 +24,59 @@ function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 1100, height: 700})
 
-  // Is the user logged in?
+  storage.get('access_token', function(err, data){
+    console.log(data);
+    //if(!data.token){
+      shell.openExternal('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
+    //}else{
+      //access_token = data.token;
+      //launchApp(data.token);
 
-  loginWindow = new BrowserWindow({width: 500, height: 500});
+    //}
+  });
 
-  loginWindow.loadURL('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
-  //shell.openExternal('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
+
+  function getRepos(access_token){
+
+    //storage.get('repos', function(err, repos){
+      //if(!repos.values){
+        
+        request({
+          url:'https://api.bitbucket.org/2.0/repositories?role=contributor',
+          auth: {
+            "bearer": access_token
+          }
+        }, function(err, response, body){
+          mainWindow.webContents.send('repos', JSON.parse(body));
+          //storage.set('repos', JSON.parse(body));
+        });
+
+    //   }else{
+    //     console.log('sending now...');
+    //     console.log(repos);
+    //     mainWindow.webContents.send('repos', repos);
+    //     console.log('sent');
+    //   }
+
+    // });
+  }
+
   
+  function launchApp(access_token){
+
+    mainWindow.loadURL(url.format({
+      pathname: path.join(__dirname, 'index.html'),
+      protocol: 'file:',
+      slashes: true
+    }));
+
+    getRepos(access_token);
+
+  }
+
+
 
   app.on('open-url', function(ev, callback){
-    loginWindow.close();
     var code = callback.substring(10);
     request({
       url: 'https://bitbucket.org/site/oauth2/access_token',
@@ -46,36 +91,20 @@ function createWindow () {
       }
     }, function(err, response, body){
 
-
-      // This here gets their repos.
       var response = JSON.parse(body);
       access_token = response.access_token;
-      request({
-        url:'https://api.bitbucket.org/2.0/repositories?role=contributor',
-        auth: {
-          "bearer": response.access_token
-        }
-      }, function(err, response, body){
-        mainWindow.webContents.send('repos', JSON.parse(body));
+      storage.set('access_token', {token: access_token}, function(err){
+        storage.get('access_token', function(err, data){
+          launchApp(access_token);
+        })
       });
-
-
-
-      // and load the index.html of the app.
-      mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
-        protocol: 'file:',
-        slashes: true
-      }));
-
-
     });
   });
 
 
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -138,9 +167,13 @@ app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
-    createWindow()
+      createWindow()
   }
 })
+
+storage.getAll(function(err, all){
+  console.log(all);
+});
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

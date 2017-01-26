@@ -19,7 +19,11 @@ issueListTemplate.classList.remove('template');
 repoSidebar.innerHTML = "";
 issueList.innerHTML = "";
 
+console.log('ready for listening!!!');
+
 require('electron').ipcRenderer.on('repos', (event, message) => {
+	console.log('yo');
+	console.log(message);
   repoSidebar.innerHTML = "";
   message.values.forEach(function(e, i){
   	repoButtonTemplate.dataset.id = e.full_name;

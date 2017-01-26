@@ -20,6 +20,7 @@
     "electron": "^1.4.1"
   },
   "dependencies": {
+    "electron-json-storage": "^3.0.0",
     "electron-oauth2": "^2.4.0",
     "request": "^2.79.0"
   }
