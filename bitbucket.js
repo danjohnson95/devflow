@@ -1,5 +1,6 @@
-var request = require('request'),
-	timeAgo = require('./timeago.js');
+const 	request = require('request'),
+		timeAgo = require('./timeago.js'),
+		cache 	= require('electron-json-storage');
 
 module.exports = {
 
@@ -21,17 +22,19 @@ module.exports = {
 	 * Runs callback after request completed containing err and response body.
 	 */
 	doAuthenticatedRequest: function(endpoint, method, callback){
-		if(!this.access_token) throw "Access token has not been defined";
 		var obj = this;
-		request({
-			url: obj.hostname+endpoint,
-			method: method,
-			auth: {
-				'bearer': obj.access_token
-			}
-		}, function(err, resp, body){
-			console.log(body);
-			callback(err, JSON.parse(body));
+		this.getAccessToken(function(){
+			console.log(obj.access_token);
+			request({
+				url: obj.hostname+endpoint,
+				method: method,
+				auth: {
+					'bearer': obj.access_token
+				}
+			}, function(err, resp, body){
+				console.log(body);
+				callback(err, JSON.parse(body));
+			});
 		});
 	},
 
@@ -47,10 +50,32 @@ module.exports = {
 	/**
 	 * Sets the access token needed to authenticate API requests
 	 */
-	setAccessToken: function(access_token){
+	setAccessToken: function(access_token, callback){
 		this.access_token = access_token;
+		cache.set('config', {access_token: access_token}, function(){
+			callback();
+		});
 	},
 
+	/**
+	 * Gets the access token by first looking in this object,
+	 * then checking the cache
+	 */
+	 getAccessToken: function(callback){
+	 	var obj = this;
+	 	if(!obj.access_token){
+	 		cache.get('config', function(err, config){
+	 			if(Object.keys(config).length === 0 && config.constructor === Object){
+	 				throw "Access token has not been defined";
+	 			}else{
+	 				obj.access_token = config.access_token;
+	 				callback();
+	 			}
+	 		});
+	 	}else{
+	 		callback();
+	 	}
+	 },
 
 	/**
 	 * Requests an access token from BitBucket using OAuth2.0
@@ -72,8 +97,9 @@ module.exports = {
 		    }
 	  	}, function(err, response, body){
 	  		resp = JSON.parse(body);
-	  		obj.access_token = resp.access_token;
-	  		callback();
+	  		obj.setAccessToken(resp.access_token, function(){
+	  			callback();
+	  		});
 	  	});
 	},
 
@@ -103,6 +129,7 @@ module.exports = {
 	 		callback(err, issues);
 	 	});
  	},
+
 
 	/**
 	 * Returns an object of an individual issue, using the provided repo and issue ID

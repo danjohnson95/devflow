@@ -14,7 +14,6 @@ const url = require('url')
 
 const storage = require('electron-json-storage')
 
-const timeAgo = require('./timeago.js');
 const BitBucket = require('./bitbucket.js');
 
 var access_token = null;
@@ -25,21 +24,30 @@ let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1100, height: 700, titleBarStyle: "hidden-inset"})
+  mainWindow = new BrowserWindow({
+    width: 1100, 
+    height: 700, 
+    titleBarStyle: "hidden-inset"
+  })
 
-  storage.get('access_token', function(err, data){
-    console.log(data);
+  //storage.get('access_token', function(err, data){
     //if(!data.token){
 
-      //shell.openExternal('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
-      shell.openExternal(BitBucket.getAuthenticateURL());
+      //Do we have the access token in the cache?
+      storage.get('config', function(err, config){
+        if(Object.keys(config).length === 0 && config.constructor === Object){
+          shell.openExternal(BitBucket.getAuthenticateURL());
+        }else{
+          launchApp();  
+        }
+      });
 
     //}else{
       //access_token = data.token;
-      //launchApp(data.token);
+      //
 
     //}
-  });
+  //});
 
   
   function launchApp(access_token){
@@ -52,6 +60,7 @@ function createWindow () {
 
     BitBucket.getRepos(function(err, repos){
       console.log(repos);
+      console.log(err);
       mainWindow.webContents.send('repos', repos);
     });
 
@@ -84,19 +93,6 @@ ipcMain.on('show-issues', (event, arg) => {
     mainWindow.webContents.send('issues', issues);
   });
 
-  // console.log(arg);
-  // request({
-  //   url:'https://api.bitbucket.org/2.0/repositories/'+arg+'/issues',
-  //   auth: {
-  //     "bearer": access_token
-  //   }
-  // }, function(err, response, body){
-
-  //   body = JSON.parse(body);
-  //   body.repo_id = arg;
-  //   mainWindow.webContents.send('issues', body);
-  // });
-
 });
 
 ipcMain.on('show-issue', (event, arg) => {
@@ -104,15 +100,6 @@ ipcMain.on('show-issue', (event, arg) => {
   BitBucket.getIssue(arg, function(err, issue){
     mainWindow.webContents.send('issue', issue);
   });
-  // console.log(arg);
-  // request({
-  //   url:'https://api.bitbucket.org/2.0/repositories/'+arg,
-  //   auth: {
-  //     "bearer": access_token
-  //   }
-  // }, function(err, response, body){
-  //   mainWindow.webContents.send('issue', JSON.parse(body));
-  // })
 
 });
 
@@ -140,10 +127,6 @@ app.on('activate', function () {
       createWindow()
   }
 })
-
-storage.getAll(function(err, all){
-  console.log(all);
-});
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
