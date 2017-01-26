@@ -50,7 +50,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	message.values.forEach(function(e, i){
 		issueListTemplate.dataset.id = message.repo_id+"/issues/"+e.id;
 		issueListTemplate.querySelector('.issue-id').innerHTML = "#"+e.id;
-		issueListTemplate.querySelector('.issue-date').innerHTML = e.updated_on;
+		issueListTemplate.querySelector('.issue-date').innerHTML = e.updated_html;
 		issueListTemplate.querySelector('.issue-title').innerHTML = e.title;
 		issueListTemplate.querySelector('.issue-labels label').innerHTML = e.kind;
 		if(e.assignee){
@@ -82,7 +82,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	issueContents.querySelector('#issue-labels label').innerHTML = message.kind;
 	issueContents.querySelector('.issue-description img').setAttribute('src', message.reporter.links.avatar.href);
 	issueContents.querySelector('.issue-description .user-name').innerHTML = message.reporter.display_name;
-	issueContents.querySelector('.issue-description .posted-time').innerHTML = message.created_on;
+	issueContents.querySelector('.issue-description .posted-time').innerHTML = message.created_html;
 	issueContents.querySelector('.issue-description p.issue-content').innerHTML = message.content.html;
 
 });

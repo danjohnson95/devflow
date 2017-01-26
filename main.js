@@ -15,6 +15,7 @@ const url = require('url')
 const storage = require('electron-json-storage')
 
 const timeAgo = require('./timeago.js');
+const BitBucket = require('./bitbucket.js');
 
 var access_token = null;
 
@@ -29,39 +30,16 @@ function createWindow () {
   storage.get('access_token', function(err, data){
     console.log(data);
     //if(!data.token){
-      shell.openExternal('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
+
+      //shell.openExternal('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
+      shell.openExternal(BitBucket.getAuthenticateURL());
+
     //}else{
       //access_token = data.token;
       //launchApp(data.token);
 
     //}
   });
-
-
-  function getRepos(access_token){
-
-    //storage.get('repos', function(err, repos){
-      //if(!repos.values){
-        
-        request({
-          url:'https://api.bitbucket.org/2.0/repositories?role=contributor',
-          auth: {
-            "bearer": access_token
-          }
-        }, function(err, response, body){
-          mainWindow.webContents.send('repos', JSON.parse(body));
-          //storage.set('repos', JSON.parse(body));
-        });
-
-    //   }else{
-    //     console.log('sending now...');
-    //     console.log(repos);
-    //     mainWindow.webContents.send('repos', repos);
-    //     console.log('sent');
-    //   }
-
-    // });
-  }
 
   
   function launchApp(access_token){
@@ -72,47 +50,29 @@ function createWindow () {
       slashes: true
     }));
 
-    getRepos(access_token);
+    BitBucket.getRepos(function(err, repos){
+      console.log(repos);
+      mainWindow.webContents.send('repos', repos);
+    });
 
   }
 
 
 
   app.on('open-url', function(ev, callback){
-    var code = callback.substring(10);
-    request({
-      url: 'https://bitbucket.org/site/oauth2/access_token',
-      method:'post',
-      auth: {
-        user: "XQZgdxhJ6B65Cnk3UQ",
-        pass: "EJ5UgWBpK2njZs73CJwWyVXGURJSxYA8"
-      },
-      form: {
-        "grant_type": "authorization_code",
-        "code": code
-      }
-    }, function(err, response, body){
 
-      var response = JSON.parse(body);
-      access_token = response.access_token;
-      storage.set('access_token', {token: access_token}, function(err){
-        storage.get('access_token', function(err, data){
-          launchApp(access_token);
-        })
-      });
+    BitBucket.code = callback.substring(10);
+    BitBucket.requestAccessToken(function(){
+      launchApp();
     });
+
   });
-
-
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     mainWindow = null
   })
 
@@ -120,31 +80,39 @@ function createWindow () {
 
 ipcMain.on('show-issues', (event, arg) => {
 
-  console.log(arg);
-  request({
-    url:'https://api.bitbucket.org/2.0/repositories/'+arg+'/issues',
-    auth: {
-      "bearer": access_token
-    }
-  }, function(err, response, body){
-    body = JSON.parse(body);
-    body.repo_id = arg;
-    mainWindow.webContents.send('issues', body);
+  BitBucket.getIssues(arg, function(err, issues){
+    mainWindow.webContents.send('issues', issues);
   });
+
+  // console.log(arg);
+  // request({
+  //   url:'https://api.bitbucket.org/2.0/repositories/'+arg+'/issues',
+  //   auth: {
+  //     "bearer": access_token
+  //   }
+  // }, function(err, response, body){
+
+  //   body = JSON.parse(body);
+  //   body.repo_id = arg;
+  //   mainWindow.webContents.send('issues', body);
+  // });
 
 });
 
 ipcMain.on('show-issue', (event, arg) => {
 
-  console.log(arg);
-  request({
-    url:'https://api.bitbucket.org/2.0/repositories/'+arg,
-    auth: {
-      "bearer": access_token
-    }
-  }, function(err, response, body){
-    mainWindow.webContents.send('issue', JSON.parse(body));
-  })
+  BitBucket.getIssue(arg, function(err, issue){
+    mainWindow.webContents.send('issue', issue);
+  });
+  // console.log(arg);
+  // request({
+  //   url:'https://api.bitbucket.org/2.0/repositories/'+arg,
+  //   auth: {
+  //     "bearer": access_token
+  //   }
+  // }, function(err, response, body){
+  //   mainWindow.webContents.send('issue', JSON.parse(body));
+  // })
 
 });
 

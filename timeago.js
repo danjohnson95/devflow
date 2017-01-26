@@ -26,7 +26,6 @@ module.exports = {
 
     getStamp: function(date){
         date = new Date(date);
-        console.log(date);
         return date.getHours()+":"+date.getMinutes()+" "+date.getDate()+" "+this.month[date.getMonth()]+" "+date.getFullYear(); 
     },
 
