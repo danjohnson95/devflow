@@ -18,20 +18,29 @@ var access_token = null;
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
+// const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+//   // Someone tried to run a second instance, we should focus our window.
+//   if (mainWindow) {
+//     if (mainWindow.isMinimized()) mainWindow.restore()
+//     mainWindow.focus()
+//   }
+// })
+
+// if (shouldQuit) {
+//   app.quit()
+// }
+// 
+
+
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 1100, height: 700})
-
+  console.log('create window');
   // Is the user logged in?
-
-  loginWindow = new BrowserWindow({width: 500, height: 500});
-
-  loginWindow.loadURL('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
-  //shell.openExternal('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
   
+  shell.openExternal('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
 
   app.on('open-url', function(ev, callback){
-    loginWindow.close();
     var code = callback.substring(10);
     request({
       url: 'https://bitbucket.org/site/oauth2/access_token',
@@ -59,8 +68,6 @@ function createWindow () {
         mainWindow.webContents.send('repos', JSON.parse(body));
       });
 
-
-
       // and load the index.html of the app.
       mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'index.html'),
@@ -68,14 +75,11 @@ function createWindow () {
         slashes: true
       }));
 
-
     });
   });
 
-
-
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -117,13 +121,22 @@ ipcMain.on('show-issue', (event, arg) => {
 
 });
 
+const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+  // Someone tried to run a second instance, we should focus our window.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+})
+
+if (shouldQuit) {
+  app.quit()
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
-
-
-
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
