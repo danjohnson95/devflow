@@ -23,10 +23,15 @@ function createWindow () {
   mainWindow = new BrowserWindow({width: 1100, height: 700})
 
   // Is the user logged in?
-  shell.openExternal('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
+
+  loginWindow = new BrowserWindow({width: 500, height: 500});
+
+  loginWindow.loadURL('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
+  //shell.openExternal('https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code');
   
 
   app.on('open-url', function(ev, callback){
+    loginWindow.close();
     var code = callback.substring(10);
     request({
       url: 'https://bitbucket.org/site/oauth2/access_token',
