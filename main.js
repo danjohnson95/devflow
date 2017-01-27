@@ -30,26 +30,17 @@ function createWindow () {
     titleBarStyle: "hidden-inset"
   })
 
-  //storage.get('access_token', function(err, data){
-    //if(!data.token){
+  //Do we have the access token in the cache?
+  storage.get('config', function(err, config){
+    if(Object.keys(config).length === 0 && config.constructor === Object){
+      shell.openExternal(BitBucket.getAuthenticateURL());
+    }else{
+      launchApp();  
+    }
+  });
 
-      //Do we have the access token in the cache?
-      storage.get('config', function(err, config){
-        if(Object.keys(config).length === 0 && config.constructor === Object){
-          shell.openExternal(BitBucket.getAuthenticateURL());
-        }else{
-          launchApp();  
-        }
-      });
+   
 
-    //}else{
-      //access_token = data.token;
-      //
-
-    //}
-  //});
-
-  
   function launchApp(access_token){
 
     mainWindow.loadURL(url.format({
@@ -58,14 +49,26 @@ function createWindow () {
       slashes: true
     }));
 
+    // First, get cached repos. Then we'll connect afterward.
+    storage.get('repos', function(err, repos){
+      if(Object.keys(repos).length > 0){
+        console.log('GOT CACHE!!');
+
+        //console.log(mainWindow.webContents.send('repos', {"test":"hey"}));
+        //console.log(mainWindow);
+        ipcMain.emit('repos', {'test':'hey'});
+      }
+    });
+
+    mainWindow.webContents.send('loading-start', {box: 0});
+
     BitBucket.getRepos(function(err, repos){
-      console.log(repos);
-      console.log(err);
-      mainWindow.webContents.send('repos', repos);
+      console.log('Got from network');
+      //mainWindow.webContents.send('repos', repos);
+      mainWindow.webContents.send('loading-stop', {box: 0});
     });
 
   }
-
 
 
   app.on('open-url', function(ev, callback){

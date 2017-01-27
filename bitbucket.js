@@ -24,7 +24,6 @@ module.exports = {
 	doAuthenticatedRequest: function(endpoint, method, callback){
 		var obj = this;
 		this.getAccessToken(function(){
-			console.log(obj.access_token);
 			request({
 				url: obj.hostname+endpoint,
 				method: method,
@@ -32,7 +31,6 @@ module.exports = {
 					'bearer': obj.access_token
 				}
 			}, function(err, resp, body){
-				console.log(body);
 				callback(err, JSON.parse(body));
 			});
 		});
@@ -107,9 +105,14 @@ module.exports = {
 
 	/**
 	 * Returns an object of the repositories the current user has write access to
+	 * and stores it in the cache
 	 */
 	getRepos: function(callback){
-		this.doAuthenticatedRequest('repositories?role=contributor', 'get', callback);
+		this.doAuthenticatedRequest('repositories?role=contributor', 'get', function(err, repos){
+			cache.set('repos', repos, function(){
+				callback(err, repos);
+			});
+		});
 	},
 
 
