@@ -1,6 +1,6 @@
 body{
 	margin: 0;
-	font-family: 'San Francisco', 'Helvetica Neue', sans-serif;
+	font-family: BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	font-size: 13px;
 	-webkit-font-smoothing: antialiased;
 	min-width: 1100px;
@@ -100,6 +100,11 @@ body{
 	padding-top: 41px;
 }
 
+#issue-list ul li.issue-box .issue-details{
+	font-size: 12px;
+	font-weight: 500;
+}
+
 #issue-list ul li.issue-box.template{
 	display: none;
 }
@@ -107,7 +112,7 @@ body{
 #issue-list ul li.issue-box{
 	list-style: none;
 	border-bottom: 1px solid rgba(0,0,0,0.05);
-	padding: 1.5em 1.5em 1.5em 2em;
+	padding: 15px 25px;
 }
 
 #issue-list ul li.issue-box.active{
@@ -115,12 +120,76 @@ body{
 	color: #0077f5;
 }
 
-#issue-list ul li.issue-box .issue-details{
-	
+#issue-list ul li.issue-box .issue-status{
+	display: inline-block;
+	vertical-align: middle;
+}
+
+/*#issue-list ul li.issue-box .issue-status{
+	display: inline-block;
+	vertical-align: middle;
+	font-size: .8em;
+	border-radius: 3px;
+	line-height: 1.5;
+	padding: 0 5px;
+}
+
+#issue-list ul li.issue-box .issue-status[data-state=new]{
+	background-color: #0077f5;
+	color: #fff;
+}
+
+#issue-list ul li.issue-box .issue-status[data-state=open]{
+	background-color: #6cc644;
+}*/
+
+
+
+#issue-list ul li.issue-box .issue-status span{
+	display: inline-block;
+	font-weight: bold;
+	vertical-align: middle;
+	text-transform: uppercase;
+	margin-left: 3px;
+}
+
+#issue-list ul li.issue-box .priority{
+	width: 17px;
+	height: 17px;
+	background-size: 100%;
+	vertical-align: middle;
+	display: inline-block;
+
+}
+
+#issue-list ul li.issue-box .priority[data-priority=critical]{
+	background-image: url(icons/angle-double-up.svg);
+}
+
+#issue-list ul li.issue-box .priority[data-priority=major]{
+	background-image: url(icons/angle-up.svg);	
+}
+
+#issue-list ul li.issue-box .priority[data-priority=minor]{
+	background-image: url(icons/angle-down.svg);
+}
+
+#issue-list ul li.issue-box .priority[data-priority=trivial]{
+	background-image: url(icons/angle-double-down.svg);
+}
+
+#issue-list ul li.issue-box .priority[data-priority=blocker]{
+	background-image: url(icons/angle-double-up.svg);
+}
+
+
+#issue-list ul li.issue-box .issue-id{
+	vertical-align: middle;
 }
 
 #issue-list ul li.issue-box .issue-details .version-no, #issue-list ul li.issue-box .issue-details .issue-date{
 	color:rgba(0,0,0,0.4);
+	vertical-align: middle;
 }
 
 #issue-list ul li.issue-box .issue-details .issue-date{
@@ -129,29 +198,35 @@ body{
 
 #issue-list ul li.issue-box .issue-title{
 	font-size:1.1em;
-	font-weight: 400;
+	font-weight: 500;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
+	margin: 6px 0;
+}
+
+#issue-list ul li.issue-box .issue-labels{
 	margin: 10px 0;
 }
 
 #issue-list ul li.issue-box .issue-labels label{
-	background-color: #fefbf2;
-	font-weight: bold;
+	background-color: #f3f7fd;
 	border: 1px solid rgba(0,0,0,0.1);
 	border-radius: 3px;
-	color: rgba(0,0,0,0.25);
+	color: #c6d7ea;
 	padding: 2px 4px;
+	font-weight: 500;
+	font-size: 11px;
 }
 
 #issue-list ul li.issue-box .issue-assignees{
 	color: rgba(0,0,0,0.4);
 	margin-top: 10px;
+	font-size: 12px;
 }
 
 #issue-list ul li.issue-box .issue-assignees span.user{
-	font-weight: bold;
+	font-weight: 500;
 	color: #000;
 }
 

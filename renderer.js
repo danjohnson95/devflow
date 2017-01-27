@@ -49,6 +49,9 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	console.log(message);
 	message.values.forEach(function(e, i){
 		issueListTemplate.dataset.id = message.repo_id+"/issues/"+e.id;
+		issueListTemplate.querySelector('.priority').dataset.priority = e.priority;
+		issueListTemplate.querySelector('.issue-status').dataset.state = e.state;
+		issueListTemplate.querySelector('.issue-status .issue-status-label').innerHTML = e.state;
 		issueListTemplate.querySelector('.issue-id').innerHTML = "#"+e.id;
 		issueListTemplate.querySelector('.issue-date').innerHTML = e.updated_html;
 		issueListTemplate.querySelector('.issue-title').innerHTML = e.title;

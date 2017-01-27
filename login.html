@@ -1,0 +1,62 @@
+<style>
+body{
+	margin: 0;
+	background-color: #fafafa;
+	font-family:BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.login-box{
+	width: 350px;
+	color: rgba(0,0,0,0.8);
+	margin: 100px auto;
+	padding: 2em 1em;
+	text-align: center;
+	border: 1px solid rgba(0,0,0,0.1);
+	border-radius: 5px;
+	font-size: 14px;
+	background-color: #fff;
+}
+
+.login-box p{
+	margin: 2em 0;
+	color: rgba(0,0,0,0.6);
+}
+
+.login-box .login-btn{
+	border-radius: 5px;
+	background-color: #205081;
+	color:#fff;
+	width: 180px;
+	line-height: 2.5;
+	margin: 0 auto;
+	cursor: pointer;
+}
+
+.login-box .login-btn img{
+	width: 20px;
+	height: 20px;
+	position: relative;
+	top: -2px;
+	vertical-align: middle;
+}
+</style>
+
+<div class="login-box">
+	<strong>Welcome to Devflow</strong>
+	<p>
+		Combining development flow into one process
+	</p>
+
+	<div class="login-btn" id="login-btn">
+		<img src="icons/bitbucket.svg"> Login with BitBucket
+	</div>
+</div>
+
+<script>
+	const {ipcRenderer} = require('electron'),
+		  btn = document.getElementById('login-btn');
+
+		  btn.addEventListener('click', function(){
+		  	ipcRenderer.send('open-bitbucket');
+		  });
+</script>
