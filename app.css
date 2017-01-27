@@ -28,6 +28,7 @@ body{
 	list-style: none;
 	padding: .5em 20px;
 	margin: .5em 0;
+	cursor: pointer;
 }
 
 #sidebar #repo-sidebar li.template{
@@ -151,6 +152,8 @@ body{
 	vertical-align: middle;
 	text-transform: uppercase;
 	margin-left: 3px;
+    color: rgba(0,0,0,0.5);
+    font-size: 9px;
 }
 
 #issue-list ul li.issue-box .priority{
@@ -198,7 +201,7 @@ body{
 
 #issue-list ul li.issue-box .issue-title{
 	font-size:1.1em;
-	font-weight: 500;
+	font-weight: 400;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -213,7 +216,7 @@ body{
 	background-color: #f3f7fd;
 	border: 1px solid rgba(0,0,0,0.1);
 	border-radius: 3px;
-	color: #c6d7ea;
+	color: #729fcc;
 	padding: 2px 4px;
 	font-weight: 500;
 	font-size: 11px;
