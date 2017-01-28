@@ -98,6 +98,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	// TODO: Ensure that we're putting this inside the correct issue. It might've changed in the time it took for this one to come in.
 	if(message.values.length < 1){
 		!issueContents.querySelector('#issue-description .attachments').classList.contains('hide') ? issueContents.querySelector('#issue-description .attachments').classList.add('hide') : "";	
+		return;
 	}
 	var html = "";
 	message.values.forEach(function(e, i){
