@@ -142,6 +142,31 @@ module.exports = {
 			issue.created_html = timeAgo.html(issue.created_on);
 			callback(err, issue);
 		});
+	},
+
+
+	/**
+	 * Returns an object containing any attachments relating to the issue provided.
+	 */
+	getIssueAttachments: function(issue, callback){
+		this.doAuthenticatedRequest('repositories/'+issue+'/attachments', 'get', function(err, attachments){
+			callback(err, attachments);
+		});
+	},
+
+
+	/**
+	 * Returns an object containing comments relating to the issue provided.
+	 */
+	getIssueComments: function(issue, callback){
+		this.doAuthenticatedRequest('repositories/'+issue+'/comments', 'get', function(err, comments){
+			if(comments.values.length > 0){
+				comments.values.forEach(function(e, i){
+					comments.values[i].created_html = timeAgo.html(e.created_on);
+				});
+			}
+			callback(err, comments);
+		});
 	}
 
 }

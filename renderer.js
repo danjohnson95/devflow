@@ -12,12 +12,16 @@ var repoSidebar = document.getElementById('repo-sidebar'),
 	issueListOuter = document.getElementById('issue-list'),
 	issueList = document.getElementById('issue-list-inner'),
 	issueListTemplate = issueList.querySelector('.template'),
-	issueContents = document.getElementById('issue-contents');
+	issueContents = document.getElementById('issue-contents'),
+	issueComments = document.getElementById('issue-comments'),
+	issueCommentTemplate = issueComments.querySelector('.template');
 
 repoButtonTemplate.classList.remove('template');
 issueListTemplate.classList.remove('template');
+issueCommentTemplate.classList.remove('template');
 repoSidebar.innerHTML = "";
 issueList.innerHTML = "";
+issueComments.innerHTML = "";
 
 console.log('ready for listening!!!');
 
@@ -83,9 +87,29 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	issueContents.querySelector('.issue-id').innerHTML = "#"+message.id;
 	issueContents.querySelector('#issue-title').innerHTML = message.title;
 	issueContents.querySelector('#issue-labels label').innerHTML = message.kind;
-	issueContents.querySelector('.issue-description img').setAttribute('src', message.reporter.links.avatar.href);
-	issueContents.querySelector('.issue-description .user-name').innerHTML = message.reporter.display_name;
-	issueContents.querySelector('.issue-description .posted-time').innerHTML = message.created_html;
-	issueContents.querySelector('.issue-description p.issue-content').innerHTML = message.content.html;
+	issueContents.querySelector('#issue-contents-details .vote-and-watch .vote span').innerHTML = message.votes;
+	issueContents.querySelector('#issue-contents-details .vote-and-watch .watch span').innerHTML = message.watches;
+	issueContents.querySelector('#issue-description .issue-user img').setAttribute('src', message.reporter.links.avatar.href);
+	issueContents.querySelector('#issue-description .user-name').innerHTML = message.reporter.display_name;
+	issueContents.querySelector('#issue-description .posted-time').innerHTML = message.created_html;
+	issueContents.querySelector('#issue-description p.issue-content').innerHTML = message.content.html;
+
+}).on('attachments', (event, message) => {
+
+	console.log(message);
+
+}).on('comments', (event, message) => {
+	console.log(message);
+	issueComments.innerHTML = "";
+	if(message.values.length < 1) return;
+	message.values.forEach(function(e, i){
+		if(e.content.html == "") return;
+		issueCommentTemplate.querySelector('.issue-user img').setAttribute('src', e.user.links.avatar.href);
+		issueCommentTemplate.querySelector('.issue-user .user-name').innerHTML = e.user.display_name;
+		issueCommentTemplate.querySelector('.issue-user .posted-time').innerHTML = e.created_html;
+		issueCommentTemplate.querySelector('p.issue-content').innerHTML = e.content.html;
+
+		issueComments.innerHTML += issueCommentTemplate.outerHTML;
+	});
 
 });

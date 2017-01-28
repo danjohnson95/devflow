@@ -53,6 +53,7 @@ function createWindow () {
 
   function launchApp(access_token){
 
+
     mainWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file:',
@@ -110,8 +111,18 @@ ipcMain.on('show-issues', (event, arg) => {
 
 ipcMain.on('show-issue', (event, arg) => {
 
+  console.log(arg);
+
   BitBucket.getIssue(arg, function(err, issue){
     mainWindow.webContents.send('issue', issue);
+  });
+
+  BitBucket.getIssueAttachments(arg, function(err, attachments){
+    mainWindow.webContents.send('attachments', attachments);
+  });
+
+  BitBucket.getIssueComments(arg, function(err, comments){
+    mainWindow.webContents.send('comments', comments);
   });
 
 });

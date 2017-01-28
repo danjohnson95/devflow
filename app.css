@@ -272,41 +272,68 @@ body{
 	padding: 1em 2.5em;
 }
 
+#issue-contents #issue-contents-head .vote-and-watch{
+	float: right;
+	font-size: 11px;
+	font-weight: 500;
+	color: rgba(0,0,0,0.5);
+}
+
+#issue-contents #issue-contents-head .vote-and-watch img{
+	width: 15px;
+	height: 15px;
+	vertical-align: middle;
+}
+
+#issue-contents #issue-contents-head .vote-and-watch span{
+	margin-left: 5px;
+}
+
+#issue-contents #issue-contents-head .vote-and-watch span > span{
+	vertical-align: middle;
+	margin: 0;
+}
+
 #issue-contents #issue-contents-head h1{
 	font-weight: normal;
 	font-size: 1.6em;
 	margin: 5px 0;
 }
 
-#issue-contents #issue-comments{
+#issue-contents{
+	
+}
+
+#issue-contents .issue-comment-box{
+	background-color: #fff;
+	border: 1px solid rgba(0,0,0,0.1);
+	border-radius: 5px;
+	padding: 1.5em;
 	margin: 2em 2.5em;
 }
 
-#issue-contents #issue-comments .issue-description{
-	background-color: #fff;
-	border: 1px solid #cce4fd;
-	border-radius: 5px;
-	padding: 1.5em;
+#issue-contents #issue-description.issue-comment-box{
+	border-color: #cce4fd;
 }
 
-#issue-contents #issue-comments .issue-description .issue-user{
+#issue-contents .issue-comment-box .issue-user{
 	padding: 0 0 1em 0;
 	border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
-#issue-contents #issue-comments .issue-description .issue-user img{
+#issue-contents .issue-comment-box .issue-user img{
 	vertical-align: middle;
 	border-radius: 3px;
 	overflow: hidden;
 	margin-right: 3px;
 }
 
-#issue-contents #issue-comments .issue-description .issue-user .user-name{
+#issue-contents .issue-comment-box .issue-user .user-name{
 	font-weight: bold;
 	vertical-align: middle;
 }
 
-#issue-contents #issue-comments .issue-description .issue-user .posted-time{
+#issue-contents .issue-comment-box .issue-user .posted-time{
 	color: rgba(0,0,0,0.6);
 	vertical-align: middle;
 }
