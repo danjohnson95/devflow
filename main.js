@@ -22,6 +22,7 @@ var access_token = null;
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
+
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -69,6 +70,7 @@ function createWindow () {
         //console.log(mainWindow);
         mainWindow.webContents.send('repos', repos);
       }
+
     });
 
     mainWindow.webContents.send('loading-start', {box: 0});
@@ -127,13 +129,22 @@ ipcMain.on('show-issue', (event, arg) => {
 
 });
 
+const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+  // Someone tried to run a second instance, we should focus our window.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+})
+
+if (shouldQuit) {
+  app.quit()
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
-
-
-
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
