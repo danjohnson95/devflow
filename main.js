@@ -86,9 +86,10 @@ function createWindow () {
 
   app.on('open-url', function(ev, callback){
 
-    BitBucket.code = callback.substring(10);
-    BitBucket.requestAccessToken(function(){
-      launchApp();
+    BitBucket.setRefreshToken(callback.substring(10), function(){
+      BitBucket.requestAccessToken(function(){
+        launchApp();
+      });
     });
 
   });
