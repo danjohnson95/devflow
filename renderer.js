@@ -95,8 +95,16 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	issueContents.querySelector('#issue-description p.issue-content').innerHTML = message.content.html;
 
 }).on('attachments', (event, message) => {
-
-	console.log(message);
+	// TODO: Ensure that we're putting this inside the correct issue. It might've changed in the time it took for this one to come in.
+	if(message.values.length < 1){
+		!issueContents.querySelector('#issue-description .attachments').classList.contains('hide') ? issueContents.querySelector('#issue-description .attachments').classList.add('hide') : "";	
+	}
+	var html = "";
+	message.values.forEach(function(e, i){
+		html += "<div data-src='"+e.links.self.href[0]+"'>"+e.name+"</div>";
+	});
+	issueContents.querySelector('#issue-description .attachments div').innerHTML = html;
+	issueContents.querySelector('#issue-description .attachments').classList.contains('hide') ? issueContents.querySelector('#issue-description .attachments').classList.remove('hide') : "";
 
 }).on('comments', (event, message) => {
 	console.log(message);

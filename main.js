@@ -32,7 +32,7 @@ function createWindow () {
 
   //Do we have the access token in the cache?
   storage.get('config', function(err, config){
-    if(Object.keys(config).length === 0 && config.constructor === Object || 1==1){
+    if(Object.keys(config).length === 0 && config.constructor === Object){
       //
       mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'login.html'),
