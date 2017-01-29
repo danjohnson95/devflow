@@ -46,6 +46,15 @@ body{
 	cursor: pointer;
 }
 
+#sidebar ul li img{
+	width: 20px;
+	border-radius: 50%;
+	vertical-align: middle;
+	margin-right: 10px;
+	position: relative;
+	top: -1px;
+}
+
 #sidebar ul li label{
 	float: right;
 	color: rgba(0,0,0,0.5);
@@ -174,6 +183,9 @@ body{
 	margin-left: 3px;
     color: rgba(0,0,0,0.5);
     font-size: 9px;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 3px;
+    padding: 1px 2px;
 }
 
 #issue-list ul li.issue-box .priority{

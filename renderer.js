@@ -32,7 +32,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
   	console.log(e);
   	repoButtonTemplate.dataset.repo_slug = e.full_name;
   	repoButtonTemplate.dataset.repo_id = e.uuid;
-  	repoButtonTemplate.innerHTML = e.name;
+  	repoButtonTemplate.innerHTML = "<img src='"+e.links.avatar.href+"'>"+e.name;
   	repoSidebar.innerHTML += repoButtonTemplate.outerHTML;
   });
 
