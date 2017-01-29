@@ -41,6 +41,11 @@ var obj = {
 		obj.registerEventListeners();
 	},
 
+	prependIssue: function(issue){
+		issueList.innerHTML = obj.generateNewIssueBlockHTML(issue) + issueList.innerHTML;
+		obj.registerEventListeners();
+	},
+
 	getIssueLinks: function(){
 		return issueList.querySelectorAll('.issue-box');
 	},
@@ -70,6 +75,7 @@ var obj = {
 
 	registerEventListeners: function(){
 		[].map.call(obj.getIssueLinks(), function(elem){
+			elem.removeEventListener('click', obj.clickIssue);
 			elem.addEventListener('click', obj.clickIssue);
 		});
 	},
@@ -94,8 +100,6 @@ var obj = {
 			template.querySelector('.issue-assignees span').innerHTML = "nobody";
 			template.querySelector('.issue-assignees span').classList.contains('user') ? template.querySelector('.issue-assignees span').classList.remove('user') : "";
 		}
-
-		console.log(template.outerHTML);
 
 		return template.outerHTML;
 

@@ -78,7 +78,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 }).on('new-issue-created', (event, message) => {
 	newIssueModal.closeAndClear();
 	// Are we on the same repo as the one just inserted?
-	if(currentRepo == message.repo_id){
-		console.log('Add new repo');
-	}
+	//if(currentRepo == message.repo_id){
+		issues.prependIssue(message);
+	//}
 });

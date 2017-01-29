@@ -50,7 +50,7 @@ function createWindow () {
 
       ipcMain.on('bitbucket-code', function(e, code){
         BitBucket.setRefreshToken(code, function(){
-          BitBucket.requestAccessToken(function(){
+          BitBucket.requestAccessToken(false, function(){
             launchApp();
           });
         });

@@ -43,7 +43,7 @@ module.exports = {
 				if(err) throw err;
 				if(body.type && body.type == "error" && body.error.message == obj.refresh_error){
 					console.log('access token has expired');
-					obj.requestAccessToken(function(){
+					obj.requestAccessToken(true, function(){
 						console.log('new token got');
 						obj.doAuthenticatedRequest(endpoint, opt, callback);
 					});
@@ -94,10 +94,9 @@ module.exports = {
 	 	var obj = this;
 	 	if(!obj.access_token){
 	 		cache.config.findOne({type:'access_token'}, function(err, key){
-	 			console.log(key);
-	 		
+
 	 			if(!key || !key.value){
-	 				obj.requestAccessToken(callback);
+	 				obj.requestAccessToken(true, callback);
 	 			}else{
 	 				obj.access_token = key.value;
 	 				callback();
@@ -111,12 +110,26 @@ module.exports = {
 	/**
 	 * Requests an access token from BitBucket using OAuth2.0
 	 */
-	requestAccessToken: function(callback){
+	requestAccessToken: function(refresh, callback){
 		var obj = this,
 			resp = {};
 
 		cache.config.findOne({type: 'refresh_token'}, function(err, key){
+			console.log(key.value);
 			if(!key) throw "Your refresh token has gone";
+			
+			if(refresh){
+				var form = {
+					"grant_type": "refresh_token",
+					"refresh_token": key.value
+				}
+			}else{
+				var form = {
+					"grant_type": "authorization_code",
+					"code": key.value
+				}
+			}
+
 			request({
 			    url: 'https://bitbucket.org/site/oauth2/access_token',
 			    method:'post',
@@ -124,11 +137,9 @@ module.exports = {
 			    	user: "XQZgdxhJ6B65Cnk3UQ",
 			    	pass: "EJ5UgWBpK2njZs73CJwWyVXGURJSxYA8"
 			    },
-			    form: {
-			    	"grant_type": "authorization_code",
-			    	"code": key.value
-			    }
+			    form: form
 		  	}, function(err, response, body){
+		  		console.log(response);
 		  		resp = JSON.parse(body);
 		  		obj.setAccessToken(resp.access_token, function(){
 		  			callback();
