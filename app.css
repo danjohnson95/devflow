@@ -178,7 +178,7 @@ body{
 	overflow-y: scroll;
 }
 
-#issue-list #placeholder, #issue-contents #placeholder{
+#issue-list .placeholder, #issue-contents .placeholder{
 	position: absolute;
 	width: 100%;
 	height: 100%;
@@ -191,7 +191,7 @@ body{
 	color: rgba(0,0,0,0.5);
 }
 
-#issue-list #placeholder.hide, #issue-contents #placeholder.hide{
+#issue-list .placeholder.hide, #issue-contents .placeholder.hide{
 	display: none;
 }
 

@@ -17,7 +17,8 @@ var repoSidebar = document.getElementById('repo-sidebar'),
 	issueCommentTemplate = issueComments.querySelector('.template');
 
 var newIssueModal = require('./browser/new-issue-modal.js'),
-	repoList = require('./browser/repo-list.js');
+	repoList = require('./browser/repo-list.js'),
+	issues = require('./browser/issues.js');
 
 issueListTemplate.classList.remove('template');
 issueCommentTemplate.classList.remove('template');
@@ -31,44 +32,11 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
   repoList.insertRepos(message.values);
 
 }).on('issues', (event, message) => {
-	!issueListOuter.querySelector('#placeholder').classList.contains('hide') ? issueListOuter.querySelector('#placeholder').classList.add('hide') : "";
-	issueContents.querySelector('#placeholder').classList.contains('hide') ? issueContents.querySelector('#placeholder').classList.remove('hide') : "";
-	issueList.innerHTML = "";
-	console.log(message);
-	message.values.forEach(function(e, i){
-		issueListTemplate.dataset.id = e.id;
-		issueListTemplate.dataset.repo_id = e.repository.uuid;
-		issueListTemplate.dataset.repo_slug = e.repository.full_name;
-		issueListTemplate.querySelector('.priority').dataset.priority = e.priority;
-		issueListTemplate.querySelector('.issue-status').dataset.state = e.state;
-		issueListTemplate.querySelector('.issue-status .issue-status-label').innerHTML = e.state;
-		issueListTemplate.querySelector('.issue-id').innerHTML = "#"+e.id;
-		issueListTemplate.querySelector('.issue-date').innerHTML = e.updated_html;
-		issueListTemplate.querySelector('.issue-title').innerHTML = e.title;
-		issueListTemplate.querySelector('.issue-labels label').innerHTML = e.kind;
-		if(e.assignee){
-			issueListTemplate.querySelector('.issue-assignees span').innerHTML = "@"+e.assignee.username;
-			!issueListTemplate.querySelector('.issue-assignees span').classList.contains('user') ? issueListTemplate.querySelector('.issue-assignees span').classList.add('user') : "";
-		}else{
-			issueListTemplate.querySelector('.issue-assignees span').innerHTML = "nobody";
-			issueListTemplate.querySelector('.issue-assignees span').classList.contains('user') ? issueListTemplate.querySelector('.issue-assignees span').classList.remove('user') : "";
-		}
-		issueList.innerHTML += issueListTemplate.outerHTML;
-	});
 
-	var issueButtons = document.querySelectorAll('#issue-list-inner .issue-box');
-	[].map.call(issueButtons, function(elem){
-		elem.addEventListener('click', function(){
-			issueButtons.forEach(function(e, i){
-				e.classList.contains('active') ? e.classList.remove('active') : "";
-			});
-			!elem.classList.contains('active') ? elem.classList.add('active') : "";
-			ipcRenderer.send('show-issue', {repo_id: elem.dataset.repo_id, issue_id: elem.dataset.id, repo_slug: elem.dataset.repo_slug});
-		});
-	});
+	issues.insertIssues(message.values);
 
 }).on('issue', (event, message) => {
-	!issueContents.querySelector('#placeholder').classList.contains('hide') ? issueContents.querySelector('#placeholder').classList.add('hide') : "";
+	!issueContents.querySelector('.placeholder').classList.contains('hide') ? issueContents.querySelector('.placeholder').classList.add('hide') : "";
 	console.log(message);
 	issueContents.querySelector('.issue-id').innerHTML = "#"+message.id;
 	issueContents.querySelector('#issue-title').innerHTML = message.title;

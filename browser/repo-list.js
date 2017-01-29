@@ -1,6 +1,7 @@
 const repoSidebar = document.getElementById('repo-sidebar'),
 	  template = repoSidebar.querySelector('.template'),
 	  newIssueModal = require('./new-issue-modal.js'),
+	  issues = require('./issues.js'),
 	  {ipcRenderer} = require('electron');
 
 	  template.classList.remove('template');
@@ -33,14 +34,10 @@ var obj = {
 		return repoSidebar.querySelectorAll('li');
 	},
 
-	makeAllLinksInactive: function(links){
-		links.forEach(function(e){
-			e.classList.contains('active') ? e.classList.remove('active') : "";
+	makeAllLinksInactive: function(){
+		obj.getRepoLinks().forEach(function(e){
+			if(e.classList.contains('active')) e.classList.remove('active');
 		});
-	},
-
-	requestRepoIssues: function(repo){
-		ipcRenderer.send('show-issues', repo);
 	},
 
 	setCurrentRepo: function(repo){
@@ -50,9 +47,10 @@ var obj = {
 
 	clickRepo: function(){
 		var elem = this;
-		obj.makeAllLinksInactive(obj.getRepoLinks());
-		!elem.classList.contains('active') ? elem.classList.add('active') : "";
-		obj.requestRepoIssues({
+		if(elem.classList.contains('active')) return;
+		obj.makeAllLinksInactive();
+		elem.classList.add('active');
+		issues.requestIssues({
 			repo_id: elem.dataset.repo_id,
 			repo_slug: elem.dataset.repo_slug
 		});
