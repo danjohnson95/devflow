@@ -16,7 +16,8 @@ var repoSidebar = document.getElementById('repo-sidebar'),
 	issueComments = document.getElementById('issue-comments'),
 	issueCommentTemplate = issueComments.querySelector('.template');
 
-var newIssueModal = require('./browser/new-issue-modal.js');
+var newIssueModal = require('./browser/new-issue-modal.js'),
+	repoList = require('./browser/repo-list.js');
 
 repoButtonTemplate.classList.remove('template');
 issueListTemplate.classList.remove('template');
@@ -29,28 +30,30 @@ issueComments.innerHTML = "";
 ipcRenderer.send('show-repos');
 
 require('electron').ipcRenderer.on('repos', (event, message) => {
-  repoSidebar.innerHTML = "";
-  message.values.forEach(function(e, i){
-  	console.log(e);
-  	repoButtonTemplate.dataset.repo_slug = e.full_name;
-  	repoButtonTemplate.dataset.repo_id = e.uuid;
-  	repoButtonTemplate.innerHTML = "<img src='"+e.links.avatar.href+"'>"+e.name;
-  	repoSidebar.innerHTML += repoButtonTemplate.outerHTML;
-  });
+  // repoSidebar.innerHTML = "";
+  // message.values.forEach(function(e, i){
+  // 	console.log(e);
+  // 	repoButtonTemplate.dataset.repo_slug = e.full_name;
+  // 	repoButtonTemplate.dataset.repo_id = e.uuid;
+  // 	repoButtonTemplate.innerHTML = "<img src='"+e.links.avatar.href+"'>"+e.name;
+  // 	repoSidebar.innerHTML += repoButtonTemplate.outerHTML;
+  // });
+
+  repoList.insertRepos(message.values);
 
   newIssueModal.setRepos(message.values);
 
-  var repoButtons = document.querySelectorAll('#repo-sidebar li');
-  [].map.call(repoButtons, function(elem){
-  	elem.addEventListener('click', function(){
-  		repoButtons.forEach(function(e, i){
-  			e.classList.contains('active') ? e.classList.remove('active') : "";
-  		});
-  		!elem.classList.contains('active') ? elem.classList.add('active') : "";
-  		ipcRenderer.send('show-issues', {repo_id: elem.dataset.repo_id, repo_slug: elem.dataset.repo_slug});
-  		newIssueModal.setCurrentRepo(elem.dataset.repo_slug);
-  	});
-  });
+  // var repoButtons = document.querySelectorAll('#repo-sidebar li');
+  // [].map.call(repoButtons, function(elem){
+  // 	elem.addEventListener('click', function(){
+  // 		repoButtons.forEach(function(e, i){
+  // 			e.classList.contains('active') ? e.classList.remove('active') : "";
+  // 		});
+  // 		!elem.classList.contains('active') ? elem.classList.add('active') : "";
+  // 		ipcRenderer.send('show-issues', {repo_id: elem.dataset.repo_id, repo_slug: elem.dataset.repo_slug});
+  // 		newIssueModal.setCurrentRepo(elem.dataset.repo_slug);
+  // 	});
+  // });
 
 }).on('issues', (event, message) => {
 	!issueListOuter.querySelector('#placeholder').classList.contains('hide') ? issueListOuter.querySelector('#placeholder').classList.add('hide') : "";
