@@ -33,7 +33,7 @@ function createWindow () {
 
   //Do we have the access token in the cache?
   storage.get('config', function(err, config){
-    if(Object.keys(config).length === 0 && config.constructor === Object){
+    if(Object.keys(config).length === 0 && config.constructor === Object || 1==1){
       //
       mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'login.html'),
@@ -43,6 +43,14 @@ function createWindow () {
 
       ipcMain.on('open-bitbucket', function(){
         shell.openExternal(BitBucket.getAuthenticateURL());
+      });
+
+      ipcMain.on('bitbucket-code', function(e, code){
+        BitBucket.setRefreshToken(code, function(){
+          BitBucket.requestAccessToken(function(){
+            launchApp();
+          });
+        });
       });
 
     }else{
@@ -86,9 +94,10 @@ function createWindow () {
 
   app.on('open-url', function(ev, callback){
 
-    BitBucket.code = callback.substring(10);
-    BitBucket.requestAccessToken(function(){
-      launchApp();
+    BitBucket.setRefreshToken(callback.substring(10), function(){
+      BitBucket.requestAccessToken(function(){
+        launchApp();
+      });
     });
 
   });

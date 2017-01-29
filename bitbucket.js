@@ -4,9 +4,10 @@ const 	request = require('request'),
 
 module.exports = {
 
-	code: null,
+	refresh_token: null,
 	access_token: null,
 	hostname: 'https://api.bitbucket.org/2.0/',
+	refresh_error: "Access token expired. Use your refresh token to obtain a new access token.",
 
 
 	/**
@@ -31,7 +32,14 @@ module.exports = {
 					'bearer': obj.access_token
 				}
 			}, function(err, resp, body){
-				callback(err, JSON.parse(body));
+				body = JSON.parse(body);
+				if(body.type && body.type == "error" && body.message == obj.refresh_error){
+					obj.getAccessToken(function(){
+						obj.doAuthenticaedRequest(endpoint, method, callback);
+					});
+				}else{
+					callback(err, body);
+				}
 			});
 		});
 	},
@@ -40,8 +48,11 @@ module.exports = {
 	/**
 	 * Sets the code that we need to get to get the access_token
 	 */
-	setToken: function(code){
-		this.code = code;
+	setRefreshToken: function(refresh_token, callback){
+		this.refresh_token = refresh_token;
+		cache.set('config', {refresh_token: refresh_token}, function(err){
+			callback();
+		});
 	},
 
 
@@ -67,6 +78,7 @@ module.exports = {
 	 				throw "Access token has not been defined";
 	 			}else{
 	 				obj.access_token = config.access_token;
+	 				obj.refresh_token = config.refresh_token;
 	 				callback();
 	 			}
 	 		});
@@ -91,7 +103,7 @@ module.exports = {
 		    },
 		    form: {
 		    	"grant_type": "authorization_code",
-		    	"code": obj.code
+		    	"code": obj.refresh_token
 		    }
 	  	}, function(err, response, body){
 	  		resp = JSON.parse(body);
