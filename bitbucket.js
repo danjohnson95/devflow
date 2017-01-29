@@ -242,9 +242,9 @@ module.exports = {
 		}, function(err, newIssue){
 			console.log(err);
 			// Now cache it.
-			newIssue.created_html = timeAgo.html(newIssue.created_on);
-			newIssue.repo_id = newIssue.repository.uuid;
-			cache.issue.insert(newIssue, function(err, issue){
+			newIssue.updated_html = timeAgo.html(newIssue.updated_on);
+	 		newIssue.repo_id = newIssue.repository.uuid;
+			cache.issues.insert(newIssue, function(err, issue){
 				callback(err, newIssue);
 			});
 		});
