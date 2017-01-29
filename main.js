@@ -100,13 +100,21 @@ function createWindow () {
 
 }
 
+ipcMain.on('new-issue', (event, arg) => {
+
+  BitBucket.postNewIssue(arg, function(err, done){
+    console.log(err);
+    console.log(done);
+  });
+
+});
+
 ipcMain.on('show-repos', (event, arg) => {
   // First, get cached repos. Then we'll connect afterward.
   cache.repo.find({}, function(err, repos){
     if(repos.length){
 
       repos = {values: repos};
-      console.log(repos);
       mainWindow.webContents.send('repos', repos);
 
     }else{

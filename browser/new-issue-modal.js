@@ -1,7 +1,11 @@
-const modal = document.getElementById('new-issue-modal'),
+const {ipcRenderer} = require('electron'),
+	modal = document.getElementById('new-issue-modal'),
 	overlay = document.getElementById('modal-background'),
 	newIssueBtn = document.getElementById('new-issue-btn'),
-	newIssueRepos = document.getElementById('new-issue-repo-select');
+	submitIssue = modal.querySelector('.submit-new-issue button'),
+	newIssueRepos = document.getElementById('new-issue-repo-select'),
+	titleInput = modal.querySelector('input.title-input'),
+	bodyInput = modal.querySelector('textarea.body-input');
 
 
 var obj = {
@@ -27,6 +31,14 @@ var obj = {
 		newIssueRepos.value = repo;
 	},
 
+	handleInput: function(){
+		if(this.value == "" && !submitIssue.classList.contains('disabled')){
+			submitIssue.classList.add('disabled');
+		}else if(this.value != "" && submitIssue.classList.contains('disabled')){
+			submitIssue.classList.remove('disabled');
+		}
+	},
+
 	applyPositioning: function(){
 		var width = modal.offsetWidth,
 			height = modal.offsetHeight;
@@ -46,6 +58,17 @@ var obj = {
 		setTimeout(function(){
 			overlay.style.opacity = 1;
 		}, 10);
+	},
+
+	submit: function(){
+		if(this.classList.contains('disabled')) return;
+		this.classList.add('disabled');
+		this.innerHTML = "Loading...";
+		ipcRenderer.send('new-issue', {
+			repo: newIssueRepos.value,
+			title: titleInput.value,
+			body: bodyInput.value
+		});
 	}
 
 };
@@ -56,5 +79,7 @@ obj.applyPositioning();
 
 newIssueBtn.addEventListener('click', obj.open);
 overlay.addEventListener('click', obj.close);
+titleInput.addEventListener('input', obj.handleInput);
+submitIssue.addEventListener('click', obj.submit);
 
 module.exports = obj;

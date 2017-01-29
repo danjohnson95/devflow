@@ -62,20 +62,37 @@ body{
 
 .modal-header{
 	background-color: #efefef;
-	color: rgba(0,0,0,0.5);
+	color: rgba(0,0,0,0.6);
 	font-weight: bold;
 }
 
 .modal-footer{
 	border-top: 1px solid rgba(0,0,0,0.1);
+	height: 27px;
 }
 
 .modal-footer .submit-new-issue{
 	float: right;
 }
 
+.modal-footer .submit-new-issue button{
+	background-color: #f3f7fd;
+	border: 1px solid rgba(0,0,0,0.1);
+	border-radius: 3px;
+	color: #729fcc;
+	font-weight: 500;
+	outline: 0;
+	font-size: 12px;
+	padding: 5px 10px;
+	transition: 0.3s color;
+}
+
+.modal-footer .submit-new-issue button.disabled{
+	color: rgba(0,0,0,0.3);
+}
+
 .modal-body, .modal-header, .modal-footer{
-	padding: 1em;
+	padding: 1em 1.5em;
 }
 
 #sidebar{

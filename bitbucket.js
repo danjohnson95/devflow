@@ -22,20 +22,29 @@ module.exports = {
 	 * Passes through the access_token in the auth header
 	 * Runs callback after request completed containing err and response body.
 	 */
-	doAuthenticatedRequest: function(endpoint, method, callback){
-		var obj = this;
+	doAuthenticatedRequest: function(endpoint, options, callback){
+		var obj = this,
+			opt = {};
+		opt.method = options.method || "get";
+
 		this.getAccessToken(function(){
+			console.log(obj.access_token);
+
 			request({
 				url: obj.hostname+endpoint,
-				method: method,
+				method: opt.method,
 				auth: {
 					'bearer': obj.access_token
 				}
 			}, function(err, resp, body){
+				console.log(err);
 				body = JSON.parse(body);
-				if(body.type && body.type == "error" && body.message == obj.refresh_error){
-					obj.getAccessToken(function(){
-						obj.doAuthenticaedRequest(endpoint, method, callback);
+				console.log(body);
+				if(body.type && body.type == "error" && body.error.message == obj.refresh_error){
+					console.log('access token has expired');
+					obj.requestAccessToken(function(){
+						console.log('new token got');
+						obj.doAuthenticatedRequest(endpoint, opt, callback);
 					});
 				}else{
 					callback(err, body);
@@ -65,13 +74,15 @@ module.exports = {
 	setAccessToken: function(access_token, callback){
 		this.access_token = access_token;
 		cache.config.update({type: 'access_token'}, {type: 'access_token', value: access_token}, {upsert: true}, function(err, num){
-			console.log(err);
-			console.log(num);
 			callback();
 		});
 		//cache.set('config', {access_token: access_token}, function(){
 		//	callback();
 		//});
+	},
+
+	refreshAccessToken: function(callback){
+
 	},
 
 	/**
@@ -84,8 +95,8 @@ module.exports = {
 	 		cache.config.findOne({type:'access_token'}, function(err, key){
 	 		//cache.get('config', function(err, config){
 	 		
-	 			if(Object.keys(key).length === 0 && key.constructor === Object){
-	 				throw "Access token has not been defined";
+	 			if(Object.keys(key).length === 0 && key.constructor === Object || !key.value){
+	 				obj.requestAccessToken(callback);
 	 			}else{
 	 				obj.access_token = key.value;
 	 				callback();
@@ -207,6 +218,13 @@ module.exports = {
 			}
 			callback(err, comments);
 		});
+	},
+
+	postNewIssue: function(obj, callback){
+
+		// TODO: Should really do some serverside checks here.
+		this.doAuthenticatedRequest('repositories/'+obj.repo+'/issues', 'post')
+
 	}
 
 }
