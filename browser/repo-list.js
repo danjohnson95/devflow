@@ -3,6 +3,8 @@ const repoSidebar = document.getElementById('repo-sidebar'),
 	  newIssueModal = require('./new-issue-modal.js'),
 	  {ipcRenderer} = require('electron');
 
+	  template.classList.remove('template');
+
 var obj = {
 
 	currentRepo: null,
@@ -16,6 +18,7 @@ var obj = {
 	},
 
 	insertRepos: function(repos){
+		obj.clearRepos();
 		repos.forEach(function(e){
 			template.dataset.repo_slug = e.full_name;
   			template.dataset.repo_id = e.uuid;
@@ -23,6 +26,7 @@ var obj = {
 			repoSidebar.innerHTML += template.outerHTML;
 		});
 		obj.registerEventListeners();
+		newIssueModal.setRepos(repos);
 	},
 
 	getRepoLinks: function(){
