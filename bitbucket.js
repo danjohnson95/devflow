@@ -153,10 +153,15 @@ module.exports = {
 	 getIssues: function(repo, callback){
 	 	this.doAuthenticatedRequest('repositories/'+repo+'/issues', 'get', function(err, issues){
 	 		issues.repo_id = repo;
+	 		if(!issues.values) callback(err, issues);
 	 		issues.values.forEach(function(e, i){
-	 			issues.values[i].updated_html = timeAgo.html(e.updated_on);
+	 			e.updated_html = timeAgo.html(e.updated_on);
+	 			e.repo_id = repo;
+	 			//issues.values[i].updated_html = timeAgo.html(e.updated_on);
+	 			cache.issues.update({repo_id: repo, id: e.id}, e, {upsert: true}, function(e, num){
+	 				callback(err, issues);
+	 			})
 	 		});
-	 		callback(err, issues);
 	 	});
  	},
 

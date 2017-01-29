@@ -36,7 +36,7 @@ function createWindow () {
   //Do we have the access token in the cache?
   //storage.get('config', function(err, config){
   cache.config.find({type: 'access_token'}, function(err, token){
-    if(token.length){
+    if(!token.length){
 
       mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'login.html'),
@@ -112,9 +112,8 @@ function createWindow () {
 ipcMain.on('show-repos', (event, arg) => {
   // First, get cached repos. Then we'll connect afterward.
   cache.repo.find({}, function(err, repos){
-    if(Object.keys(repos).length > 0){
-      
-      console.log('GOT CACHE!!');
+    if(repos.length){
+
       repos = {values: repos};
       mainWindow.webContents.send('repos', repos);
 
@@ -132,21 +131,24 @@ ipcMain.on('show-repos', (event, arg) => {
 })
 
 ipcMain.on('show-repos', (event, arg) => {
-  console.log(arg);
   mainWindow.webContents.send('repos', arg);
 });
 
 ipcMain.on('show-issues', (event, arg) => {
 
-  BitBucket.getIssues(arg, function(err, issues){
-    mainWindow.webContents.send('issues', issues);
+  cache.issues.find({repo_id: arg}, function(err, issues){
+    if(issues.length){
+      issues = {values: issues, repo_id: arg};
+      mainWindow.webContents.send('issues', issues);
+    }else{
+      BitBucket.getIssues(arg, function(err, issues){
+        mainWindow.webContents.send('issues', issues);
+      });
+    }
   });
-
 });
 
 ipcMain.on('show-issue', (event, arg) => {
-
-  console.log(arg);
 
   BitBucket.getIssue(arg, function(err, issue){
     mainWindow.webContents.send('issue', issue);
