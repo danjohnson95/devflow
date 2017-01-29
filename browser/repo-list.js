@@ -10,6 +10,10 @@ var obj = {
 
 	currentRepo: null,
 
+	getCurrentRepo: function(){
+		return obj.currentRepo;
+	},
+
 	requestRepos: function(){
 		ipcRenderer.send('show-repos');
 	},
@@ -55,6 +59,7 @@ var obj = {
 			repo_slug: elem.dataset.repo_slug
 		});
 		newIssueModal.setCurrentRepo(elem.dataset.repo_slug);
+		obj.setCurrentRepo(elem.dataset.repo_slug);
 	},
 
 	registerEventListeners: function(){
