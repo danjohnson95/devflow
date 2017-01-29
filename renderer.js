@@ -129,4 +129,10 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 		issueComments.innerHTML += issueCommentTemplate.outerHTML;
 	});
 
+}).on('new-issue-created', (event, message) => {
+	newIssueModal.closeAndClear();
+	// Are we on the same repo as the one just inserted?
+	if(currentRepo == message.repo_id){
+		console.log('Add new repo');
+	}
 });

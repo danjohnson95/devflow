@@ -103,8 +103,7 @@ function createWindow () {
 ipcMain.on('new-issue', (event, arg) => {
 
   BitBucket.postNewIssue(arg, function(err, done){
-    console.log(err);
-    console.log(done);
+    mainWindow.webContents.send('new-issue-created', done);
   });
 
 });

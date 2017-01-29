@@ -69,6 +69,13 @@ var obj = {
 			title: titleInput.value,
 			body: bodyInput.value
 		});
+	},
+
+	closeAndClear: function(){
+		obj.close();
+		titleInput.value = "";
+		bodyInput.value = "";
+		newIssueBtn.classList.add('disabled');
 	}
 
 };

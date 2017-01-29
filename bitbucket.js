@@ -26,6 +26,7 @@ module.exports = {
 		var obj = this,
 			opt = {};
 		opt.method = options.method || "get";
+		opt.body = options.body || null;
 
 		this.getAccessToken(function(){
 			console.log(obj.access_token);
@@ -33,13 +34,13 @@ module.exports = {
 			request({
 				url: obj.hostname+endpoint,
 				method: opt.method,
+				json: true,
 				auth: {
 					'bearer': obj.access_token
-				}
+				},
+				body: opt.body
 			}, function(err, resp, body){
-				console.log(err);
-				body = JSON.parse(body);
-				console.log(body);
+				if(err) throw err;
 				if(body.type && body.type == "error" && body.error.message == obj.refresh_error){
 					console.log('access token has expired');
 					obj.requestAccessToken(function(){
@@ -93,9 +94,9 @@ module.exports = {
 	 	var obj = this;
 	 	if(!obj.access_token){
 	 		cache.config.findOne({type:'access_token'}, function(err, key){
-	 		//cache.get('config', function(err, config){
+	 			console.log(key);
 	 		
-	 			if(Object.keys(key).length === 0 && key.constructor === Object || !key.value){
+	 			if(!key || !key.value){
 	 				obj.requestAccessToken(callback);
 	 			}else{
 	 				obj.access_token = key.value;
@@ -114,23 +115,26 @@ module.exports = {
 		var obj = this,
 			resp = {};
 
-		request({
-		    url: 'https://bitbucket.org/site/oauth2/access_token',
-		    method:'post',
-		    auth: {
-		    	user: "XQZgdxhJ6B65Cnk3UQ",
-		    	pass: "EJ5UgWBpK2njZs73CJwWyVXGURJSxYA8"
-		    },
-		    form: {
-		    	"grant_type": "authorization_code",
-		    	"code": obj.refresh_token
-		    }
-	  	}, function(err, response, body){
-	  		resp = JSON.parse(body);
-	  		obj.setAccessToken(resp.access_token, function(){
-	  			callback();
-	  		});
-	  	});
+		cache.config.findOne({type: 'refresh_token'}, function(err, key){
+			if(!key) throw "Your refresh token has gone";
+			request({
+			    url: 'https://bitbucket.org/site/oauth2/access_token',
+			    method:'post',
+			    auth: {
+			    	user: "XQZgdxhJ6B65Cnk3UQ",
+			    	pass: "EJ5UgWBpK2njZs73CJwWyVXGURJSxYA8"
+			    },
+			    form: {
+			    	"grant_type": "authorization_code",
+			    	"code": key.value
+			    }
+		  	}, function(err, response, body){
+		  		resp = JSON.parse(body);
+		  		obj.setAccessToken(resp.access_token, function(){
+		  			callback();
+		  		});
+		  	});
+		});
 	},
 
 
@@ -140,7 +144,7 @@ module.exports = {
 	 * and stores it in the cache
 	 */
 	getRepos: function(callback){
-		this.doAuthenticatedRequest('repositories?role=contributor', 'get', function(err, repos){
+		this.doAuthenticatedRequest('repositories?role=contributor', {}, function(err, repos){
 			//cache.set('repos', repos, function(){
 			if(!repos.values) callback(err, repos);
 			repos.values.forEach(function(e, i){
@@ -164,7 +168,7 @@ module.exports = {
 	 */
 	 getIssues: function(repo, callback){
 	 	//console.log(repo);
-	 	this.doAuthenticatedRequest('repositories/'+repo+'/issues', 'get', function(err, issues){
+	 	this.doAuthenticatedRequest('repositories/'+repo+'/issues', {}, function(err, issues){
 	 		//console.log(issues);
 	 		if(!issues.values || !issues.values.length) return callback(err, issues);
 	 		issues.repo_slug = repo;
@@ -186,7 +190,7 @@ module.exports = {
 	 * Returns an object of an individual issue, using the provided repo and issue ID
 	 */
 	getIssue: function(repo_slug, issue_id, callback){
-		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id, 'get', function(err, issue){
+		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id, {}, function(err, issue){
 			issue.created_html = timeAgo.html(issue.created_on);
 			issue.repo_id = issue.repository.uuid;
 			cache.issue.update({repo_id: issue.repository.uuid, id: issue.id}, issue, {upsert: true}, function(err, num){
@@ -200,7 +204,7 @@ module.exports = {
 	 * Returns an object containing any attachments relating to the issue provided.
 	 */
 	getIssueAttachments: function(repo_slug, issue_id, callback){
-		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/attachments', 'get', function(err, attachments){
+		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/attachments', {}, function(err, attachments){
 			callback(err, attachments);
 		});
 	},
@@ -210,7 +214,7 @@ module.exports = {
 	 * Returns an object containing comments relating to the issue provided.
 	 */
 	getIssueComments: function(repo_slug, issue_id, callback){
-		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/comments', 'get', function(err, comments){
+		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/comments', {}, function(err, comments){
 			if(comments.values.length > 0){
 				comments.values.forEach(function(e, i){
 					comments.values[i].created_html = timeAgo.html(e.created_on);
@@ -221,9 +225,29 @@ module.exports = {
 	},
 
 	postNewIssue: function(obj, callback){
-
+		console.log('post new issue');
 		// TODO: Should really do some serverside checks here.
-		this.doAuthenticatedRequest('repositories/'+obj.repo+'/issues', 'post')
+		this.doAuthenticatedRequest('repositories/'+obj.repo+'/issues', {
+			method: 'post',
+			body: {
+				priority: 'trivial',
+				kind:'bug',
+				title: obj.title,
+				state: 'new',
+				content: {
+					raw: obj.body,
+					markup: 'markdown'
+				}
+			}
+		}, function(err, newIssue){
+			console.log(err);
+			// Now cache it.
+			newIssue.created_html = timeAgo.html(newIssue.created_on);
+			newIssue.repo_id = newIssue.repository.uuid;
+			cache.issue.insert(newIssue, function(err, issue){
+				callback(err, newIssue);
+			});
+		});
 
 	}
 
