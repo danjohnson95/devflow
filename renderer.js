@@ -26,13 +26,10 @@ issueComments.innerHTML = "";
 
 ipcRenderer.send('show-repos');
 
-console.log('ready for listening!!!');
-
 require('electron').ipcRenderer.on('repos', (event, message) => {
-	console.log('yo');
-	console.log(message);
   repoSidebar.innerHTML = "";
   message.values.forEach(function(e, i){
+  	console.log(e);
   	repoButtonTemplate.dataset.repo_slug = e.full_name;
   	repoButtonTemplate.dataset.repo_id = e.uuid;
   	repoButtonTemplate.innerHTML = e.name;
@@ -98,7 +95,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	issueContents.querySelector('#issue-description .issue-user img').setAttribute('src', message.reporter.links.avatar.href);
 	issueContents.querySelector('#issue-description .user-name').innerHTML = message.reporter.display_name;
 	issueContents.querySelector('#issue-description .posted-time').innerHTML = message.created_html;
-	issueContents.querySelector('#issue-description p.issue-content').innerHTML = message.content.html;
+	issueContents.querySelector('#issue-description p.issue-content').innerHTML = message.content.html != "" ? message.content.html : "<em>No description</em>";
 
 }).on('attachments', (event, message) => {
 	// TODO: Ensure that we're putting this inside the correct issue. It might've changed in the time it took for this one to come in.

@@ -61,15 +61,6 @@ function createWindow () {
     }
   });
 
-  function sendRepos(repos){
-    console.log('send repos to browser');
-    //mainWindow.webContents.emit('repos', repos);
-    //ipcMain.emit('repos', repos);
-    console.log(mainWindow.webContents.getURL());
-    //mainWindow.webContents.send('repos', repos);
-  }
-   
-
   function launchApp(access_token){
 
     mainWindow.loadURL(url.format({
@@ -78,7 +69,7 @@ function createWindow () {
       slashes: true
     }));
 
-    mainWindow.webContents.send('loading-start', {box: 0});
+    //mainWindow.webContents.send('loading-start', {box: 0});
 
     // BitBucket.getRepos(function(err, repos){
     //   console.log('Got from network');
@@ -115,6 +106,7 @@ ipcMain.on('show-repos', (event, arg) => {
     if(repos.length){
 
       repos = {values: repos};
+      console.log(repos);
       mainWindow.webContents.send('repos', repos);
 
     }else{
@@ -122,17 +114,12 @@ ipcMain.on('show-repos', (event, arg) => {
       BitBucket.getRepos(function(err, repos){
         console.log('Got from network');
         mainWindow.webContents.send('repos', repos);
-        //mainWindow.webContents.send('loading-stop', {box: 0});
       });
     
     }
 
   });
 })
-
-ipcMain.on('show-repos', (event, arg) => {
-  mainWindow.webContents.send('repos', arg);
-});
 
 ipcMain.on('show-issues', (event, arg) => {
   cache.issues.find({repo_id: arg.repo_id}, function(err, issues){

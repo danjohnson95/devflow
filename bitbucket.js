@@ -155,7 +155,7 @@ module.exports = {
 	 	//console.log(repo);
 	 	this.doAuthenticatedRequest('repositories/'+repo+'/issues', 'get', function(err, issues){
 	 		//console.log(issues);
-	 		if(!issues.values.length) callback(err, issues);
+	 		if(!issues.values || !issues.values.length) return callback(err, issues);
 	 		issues.repo_slug = repo;
 	 		console.log(issues);
 	 		issues.repo_id = issues.values[0].repository.uuid;
