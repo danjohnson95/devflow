@@ -253,10 +253,6 @@ body{
 	color: #000;
 }
 
-#issue-list{
-	margin: 10px 0;
-}
-
 #issue-contents{
 	position: fixed;
 	left: 565px;

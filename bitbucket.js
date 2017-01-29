@@ -1,6 +1,6 @@
 const 	request = require('request'),
 		timeAgo = require('./timeago.js'),
-		cache 	= require('electron-json-storage');
+		cache = require('./cache.js');
 
 module.exports = {
 
@@ -50,7 +50,10 @@ module.exports = {
 	 */
 	setRefreshToken: function(refresh_token, callback){
 		this.refresh_token = refresh_token;
-		cache.set('config', {refresh_token: refresh_token}, function(err){
+		//cache.set('config', {refresh_token: refresh_token}, function(err){
+		cache.config.update({type: 'refresh_token'}, {type: 'refresh_token', value: refresh_token}, {upsert: true}, function(err, num){
+			console.log(err);
+			console.log(num);
 			callback();
 		});
 	},
@@ -61,9 +64,14 @@ module.exports = {
 	 */
 	setAccessToken: function(access_token, callback){
 		this.access_token = access_token;
-		cache.set('config', {access_token: access_token}, function(){
+		cache.config.update({type: 'access_token'}, {type: 'access_token', value: access_token}, {upsert: true}, function(err, num){
+			console.log(err);
+			console.log(num);
 			callback();
 		});
+		//cache.set('config', {access_token: access_token}, function(){
+		//	callback();
+		//});
 	},
 
 	/**
@@ -121,8 +129,15 @@ module.exports = {
 	 */
 	getRepos: function(callback){
 		this.doAuthenticatedRequest('repositories?role=contributor', 'get', function(err, repos){
-			cache.set('repos', repos, function(){
-				callback(err, repos);
+			//cache.set('repos', repos, function(){
+			if(!repos.values) callback(err, repos);
+			repos.values.forEach(function(e, i){
+				cache.repo.update({'uuid':e.uuid}, e, {upsert: true}, function(e, num){
+					console.log('STORED IN CACHE');
+					console.log(num);
+					callback(err, repos);
+				});
+
 			});
 		});
 	},

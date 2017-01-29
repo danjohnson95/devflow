@@ -18,6 +18,8 @@ const BitBucket = require('./bitbucket.js');
 
 var access_token = null;
 
+const cache = require('./cache.js');
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
@@ -32,9 +34,10 @@ function createWindow () {
   })
 
   //Do we have the access token in the cache?
-  storage.get('config', function(err, config){
-    if(Object.keys(config).length === 0 && config.constructor === Object || 1==1){
-      //
+  //storage.get('config', function(err, config){
+  cache.config.find({type: 'access_token'}, function(err, token){
+    if(token.length){
+
       mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'login.html'),
         protocol: 'file:',
@@ -58,10 +61,16 @@ function createWindow () {
     }
   });
 
+  function sendRepos(repos){
+    console.log('send repos to browser');
+    //mainWindow.webContents.emit('repos', repos);
+    //ipcMain.emit('repos', repos);
+    console.log(mainWindow.webContents.getURL());
+    //mainWindow.webContents.send('repos', repos);
+  }
    
 
   function launchApp(access_token){
-
 
     mainWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
@@ -69,25 +78,13 @@ function createWindow () {
       slashes: true
     }));
 
-    // First, get cached repos. Then we'll connect afterward.
-    storage.get('repos', (err, repos) => {
-      if(Object.keys(repos).length > 0){
-        console.log('GOT CACHE!!');
-
-        //console.log(mainWindow.webContents.send('repos', {"test":"hey"}));
-        //console.log(mainWindow);
-        mainWindow.webContents.send('repos', repos);
-      }
-
-    });
-
     mainWindow.webContents.send('loading-start', {box: 0});
 
-    BitBucket.getRepos(function(err, repos){
-      console.log('Got from network');
-      mainWindow.webContents.send('repos', repos);
-      mainWindow.webContents.send('loading-stop', {box: 0});
-    });
+    // BitBucket.getRepos(function(err, repos){
+    //   console.log('Got from network');
+    //   mainWindow.webContents.send('repos', repos);
+    //   mainWindow.webContents.send('loading-stop', {box: 0});
+    // });
 
   }
 
@@ -111,6 +108,33 @@ function createWindow () {
   })
 
 }
+
+ipcMain.on('show-repos', (event, arg) => {
+  // First, get cached repos. Then we'll connect afterward.
+  cache.repo.find({}, function(err, repos){
+    if(Object.keys(repos).length > 0){
+      
+      console.log('GOT CACHE!!');
+      repos = {values: repos};
+      mainWindow.webContents.send('repos', repos);
+
+    }else{
+
+      BitBucket.getRepos(function(err, repos){
+        console.log('Got from network');
+        mainWindow.webContents.send('repos', repos);
+        //mainWindow.webContents.send('loading-stop', {box: 0});
+      });
+    
+    }
+
+  });
+})
+
+ipcMain.on('show-repos', (event, arg) => {
+  console.log(arg);
+  mainWindow.webContents.send('repos', arg);
+});
 
 ipcMain.on('show-issues', (event, arg) => {
 

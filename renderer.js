@@ -23,6 +23,9 @@ repoSidebar.innerHTML = "";
 issueList.innerHTML = "";
 issueComments.innerHTML = "";
 
+
+ipcRenderer.send('show-repos');
+
 console.log('ready for listening!!!');
 
 require('electron').ipcRenderer.on('repos', (event, message) => {
