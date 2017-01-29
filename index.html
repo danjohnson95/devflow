@@ -14,7 +14,7 @@
         <div class="global-settings">
           <img src="icons/cog.svg">
         </div>
-        <div class="new-issue">
+        <div class="new-issue" id="new-issue-btn">
           <img src="icons/plus.svg">
         </div>
       </div>
@@ -129,6 +129,35 @@
 
     </div>
 
+    <div id="modal-background"></div>
+    <div id="new-issue-modal" class="modal-outer">
+      <div class="modal-inner">
+        <div class="modal-header">  
+          New Issue
+        </div>
+        <div class="modal-body">
+          <div>
+            <select id="new-issue-repo-select">
+
+            </select>
+          </div>
+          <div>
+            <input type="text" placeholder="Issue Title">
+          </div>
+          <div>
+            <textarea placeholder="Issue Description"></textarea>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button>Attach</button>
+          <button>Preview</button>
+          <div class="submit-new-issue">
+            <button>Submit new issue</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!--<h1>Hello World!</h1>
     <!-- All of the Node.js APIs are available in this renderer process.
     We are using Node.js <script>document.write(process.versions.node)</script>,

@@ -16,6 +16,8 @@ var repoSidebar = document.getElementById('repo-sidebar'),
 	issueComments = document.getElementById('issue-comments'),
 	issueCommentTemplate = issueComments.querySelector('.template');
 
+var newIssueModal = require('./browser/new-issue-modal.js');
+
 repoButtonTemplate.classList.remove('template');
 issueListTemplate.classList.remove('template');
 issueCommentTemplate.classList.remove('template');
@@ -36,6 +38,8 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
   	repoSidebar.innerHTML += repoButtonTemplate.outerHTML;
   });
 
+  newIssueModal.setRepos(message.values);
+
   var repoButtons = document.querySelectorAll('#repo-sidebar li');
   [].map.call(repoButtons, function(elem){
   	elem.addEventListener('click', function(){
@@ -44,6 +48,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
   		});
   		!elem.classList.contains('active') ? elem.classList.add('active') : "";
   		ipcRenderer.send('show-issues', {repo_id: elem.dataset.repo_id, repo_slug: elem.dataset.repo_slug});
+  		newIssueModal.setCurrentRepo(elem.dataset.repo_slug);
   	});
   });
 

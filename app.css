@@ -8,6 +8,76 @@ body{
 	letter-spacing: .1px;
 }
 
+#modal-background{
+	background-color: rgba(0,0,0,0.5);
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 999;
+	opacity: 0;
+	transition: 0.2s opacity;
+	display: none;
+}
+
+.modal-outer{
+	display: none;
+	position: fixed;
+	text-align: center;
+	z-index: 1000;
+	opacity: 0;
+	transform: translate3d(0, 300px, 0);
+	transition: 0.3s transform, 0.3s opacity;
+}
+
+.modal-inner{
+	width: 100%;
+	background-color: #fff;
+	border-radius: 5px;
+	margin: 0 auto;
+	overflow: hidden;
+	text-align: left;
+	width: 800px;
+}
+
+.modal-inner input{
+	font-size: 1.5em;
+	border: 0;
+	outline: 0;
+	margin: 1em 0;
+	padding: 0;
+	width: 100%;
+}
+
+.modal-inner textarea{
+	border: 0;
+	outline: 0;
+	height: 300px;
+	width: 100%;
+	padding: 0;
+	font-size: 1em;
+	resize: none;
+}
+
+.modal-header{
+	background-color: #efefef;
+	color: rgba(0,0,0,0.5);
+	font-weight: bold;
+}
+
+.modal-footer{
+	border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.modal-footer .submit-new-issue{
+	float: right;
+}
+
+.modal-body, .modal-header, .modal-footer{
+	padding: 1em;
+}
+
 #sidebar{
 	width: 225px;
 	position: fixed;
