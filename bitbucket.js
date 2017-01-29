@@ -81,12 +81,13 @@ module.exports = {
 	 getAccessToken: function(callback){
 	 	var obj = this;
 	 	if(!obj.access_token){
-	 		cache.get('config', function(err, config){
-	 			if(Object.keys(config).length === 0 && config.constructor === Object){
+	 		cache.config.findOne({type:'access_token'}, function(err, key){
+	 		//cache.get('config', function(err, config){
+	 		
+	 			if(Object.keys(key).length === 0 && key.constructor === Object){
 	 				throw "Access token has not been defined";
 	 			}else{
-	 				obj.access_token = config.access_token;
-	 				obj.refresh_token = config.refresh_token;
+	 				obj.access_token = key.value;
 	 				callback();
 	 			}
 	 		});
@@ -132,7 +133,7 @@ module.exports = {
 			//cache.set('repos', repos, function(){
 			if(!repos.values) callback(err, repos);
 			repos.values.forEach(function(e, i){
-				cache.repo.update({'uuid':e.uuid}, e, {upsert: true}, function(e, num){
+				cache.repo.update({'uuid':e.uuid}, e, {upsert: true}, function(err, num){
 					console.log('STORED IN CACHE');
 					console.log(num);
 					callback(err, repos);
@@ -151,14 +152,18 @@ module.exports = {
 	 * to include the full repository name
 	 */
 	 getIssues: function(repo, callback){
+	 	//console.log(repo);
 	 	this.doAuthenticatedRequest('repositories/'+repo+'/issues', 'get', function(err, issues){
-	 		issues.repo_id = repo;
-	 		if(!issues.values) callback(err, issues);
+	 		//console.log(issues);
+	 		if(!issues.values.length) callback(err, issues);
+	 		issues.repo_slug = repo;
+	 		console.log(issues);
+	 		issues.repo_id = issues.values[0].repository.uuid;
 	 		issues.values.forEach(function(e, i){
 	 			e.updated_html = timeAgo.html(e.updated_on);
-	 			e.repo_id = repo;
+	 			e.repo_id = e.repository.uuid;
 	 			//issues.values[i].updated_html = timeAgo.html(e.updated_on);
-	 			cache.issues.update({repo_id: repo, id: e.id}, e, {upsert: true}, function(e, num){
+	 			cache.issues.update({repo_id: repo, id: e.id}, e, {upsert: true}, function(err, num){
 	 				callback(err, issues);
 	 			})
 	 		});
@@ -169,10 +174,13 @@ module.exports = {
 	/**
 	 * Returns an object of an individual issue, using the provided repo and issue ID
 	 */
-	getIssue: function(issue, callback){
-		this.doAuthenticatedRequest('repositories/'+issue, 'get', function(err, issue){
+	getIssue: function(repo_slug, issue_id, callback){
+		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id, 'get', function(err, issue){
 			issue.created_html = timeAgo.html(issue.created_on);
-			callback(err, issue);
+			issue.repo_id = issue.repository.uuid;
+			cache.issue.update({repo_id: issue.repository.uuid, id: issue.id}, issue, {upsert: true}, function(err, num){
+				callback(err, issue);
+			})
 		});
 	},
 
@@ -180,8 +188,8 @@ module.exports = {
 	/**
 	 * Returns an object containing any attachments relating to the issue provided.
 	 */
-	getIssueAttachments: function(issue, callback){
-		this.doAuthenticatedRequest('repositories/'+issue+'/attachments', 'get', function(err, attachments){
+	getIssueAttachments: function(repo_slug, issue_id, callback){
+		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/attachments', 'get', function(err, attachments){
 			callback(err, attachments);
 		});
 	},
@@ -190,8 +198,8 @@ module.exports = {
 	/**
 	 * Returns an object containing comments relating to the issue provided.
 	 */
-	getIssueComments: function(issue, callback){
-		this.doAuthenticatedRequest('repositories/'+issue+'/comments', 'get', function(err, comments){
+	getIssueComments: function(repo_slug, issue_id, callback){
+		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/comments', 'get', function(err, comments){
 			if(comments.values.length > 0){
 				comments.values.forEach(function(e, i){
 					comments.values[i].created_html = timeAgo.html(e.created_on);

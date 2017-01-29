@@ -33,7 +33,8 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	console.log(message);
   repoSidebar.innerHTML = "";
   message.values.forEach(function(e, i){
-  	repoButtonTemplate.dataset.id = e.full_name;
+  	repoButtonTemplate.dataset.repo_slug = e.full_name;
+  	repoButtonTemplate.dataset.repo_id = e.uuid;
   	repoButtonTemplate.innerHTML = e.name;
   	repoSidebar.innerHTML += repoButtonTemplate.outerHTML;
   });
@@ -45,7 +46,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
   			e.classList.contains('active') ? e.classList.remove('active') : "";
   		});
   		!elem.classList.contains('active') ? elem.classList.add('active') : "";
-  		ipcRenderer.send('show-issues', elem.dataset.id);
+  		ipcRenderer.send('show-issues', {repo_id: elem.dataset.repo_id, repo_slug: elem.dataset.repo_slug});
   	});
   });
 
@@ -55,7 +56,9 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	issueList.innerHTML = "";
 	console.log(message);
 	message.values.forEach(function(e, i){
-		issueListTemplate.dataset.id = message.repo_id+"/issues/"+e.id;
+		issueListTemplate.dataset.id = e.id;
+		issueListTemplate.dataset.repo_id = e.repository.uuid;
+		issueListTemplate.dataset.repo_slug = e.repository.full_name;
 		issueListTemplate.querySelector('.priority').dataset.priority = e.priority;
 		issueListTemplate.querySelector('.issue-status').dataset.state = e.state;
 		issueListTemplate.querySelector('.issue-status .issue-status-label').innerHTML = e.state;
@@ -80,7 +83,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 				e.classList.contains('active') ? e.classList.remove('active') : "";
 			});
 			!elem.classList.contains('active') ? elem.classList.add('active') : "";
-			ipcRenderer.send('show-issue', elem.dataset.id);
+			ipcRenderer.send('show-issue', {repo_id: elem.dataset.repo_id, issue_id: elem.dataset.id, repo_slug: elem.dataset.repo_slug});
 		});
 	});
 

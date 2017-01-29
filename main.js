@@ -135,13 +135,12 @@ ipcMain.on('show-repos', (event, arg) => {
 });
 
 ipcMain.on('show-issues', (event, arg) => {
-
-  cache.issues.find({repo_id: arg}, function(err, issues){
+  cache.issues.find({repo_id: arg.repo_id}, function(err, issues){
     if(issues.length){
       issues = {values: issues, repo_id: arg};
       mainWindow.webContents.send('issues', issues);
     }else{
-      BitBucket.getIssues(arg, function(err, issues){
+      BitBucket.getIssues(arg.repo_slug, function(err, issues){
         mainWindow.webContents.send('issues', issues);
       });
     }
@@ -150,18 +149,26 @@ ipcMain.on('show-issues', (event, arg) => {
 
 ipcMain.on('show-issue', (event, arg) => {
 
-  BitBucket.getIssue(arg, function(err, issue){
-    mainWindow.webContents.send('issue', issue);
-  });
+  console.log(arg);
 
-  BitBucket.getIssueAttachments(arg, function(err, attachments){
-    mainWindow.webContents.send('attachments', attachments);
-  });
+  cache.issue.findOne({repo_id: arg.repo_id, id: parseInt(arg.issue_id)}, function(err, issue){
 
-  BitBucket.getIssueComments(arg, function(err, comments){
-    mainWindow.webContents.send('comments', comments);
-  });
+    if(issue){
+      mainWindow.webContents.send('issue', issue);
+    }else{
+      BitBucket.getIssue(arg.repo_slug, arg.issue_id, function(err, issue){
+        mainWindow.webContents.send('issue', issue);
+      });
 
+      BitBucket.getIssueAttachments(arg.repo_slug, arg.issue_id, function(err, attachments){
+        mainWindow.webContents.send('attachments', attachments);
+      });
+
+      BitBucket.getIssueComments(arg.repo_slug, arg.issue_id, function(err, comments){
+        mainWindow.webContents.send('comments', comments);
+      });
+    }
+  });
 });
 
 const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
