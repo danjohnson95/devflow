@@ -199,6 +199,7 @@ body{
 	top: 0;
 	left: 225px;
 	width: 339px;
+	z-index: 1;
 }
 #issue-list #search-box input{
 	border: 0;
@@ -231,11 +232,6 @@ body{
 	list-style: none;
 	border-bottom: 1px solid rgba(0,0,0,0.05);
 	padding: 15px 15px 15px 25px;
-}
-
-#issue-list ul li.issue-box.active{
-	background-color: #f4f9ff;
-	color: #0077f5;
 }
 
 #issue-list ul li.issue-box .issue-status{
@@ -285,26 +281,57 @@ body{
 
 }
 
-#issue-list ul li.issue-box .priority[data-priority=critical]{
+#issue-list ul li.issue-box[data-disabled=true]{
+	background-color: #fafafa;
+	color: rgba(0,0,0,0.4);
+	filter: grayscale();
+}
+
+#issue-list ul li.issue-box[data-disabled=true] .issue-assignees span.user{
+	color: rgba(0,0,0,0.4);
+}
+
+#issue-list ul li.issue-box[data-disabled=true] .issue-status span{
+	color: rgba(0,0,0,0.4);
+}
+
+#issue-list ul li.issue-box .priority[title=critical]{
 	background-image: url(icons/angle-double-up.svg);
 }
 
-#issue-list ul li.issue-box .priority[data-priority=major]{
+#issue-list ul li.issue-box .priority[title=major]{
 	background-image: url(icons/angle-up.svg);	
 }
 
-#issue-list ul li.issue-box .priority[data-priority=minor]{
+#issue-list ul li.issue-box .priority[title=minor]{
 	background-image: url(icons/angle-down.svg);
 }
 
-#issue-list ul li.issue-box .priority[data-priority=trivial]{
+#issue-list ul li.issue-box .priority[title=trivial]{
 	background-image: url(icons/angle-double-down.svg);
 }
 
-#issue-list ul li.issue-box .priority[data-priority=blocker]{
+#issue-list ul li.issue-box .priority[title=blocker]{
 	background-image: url(icons/angle-double-up.svg);
 }
 
+#issue-list ul li.issue-box.active{
+	background-color: #f4f9ff;
+}
+
+#issue-list ul li.issue-box.active,
+#issue-list ul li.issue-box.active .issue-details .issue-date,
+#issue-list ul li.issue-box.active .issue-assignees,
+#issue-list ul li.issue-box.active .issue-assignees span.user,
+#issue-list ul li.issue-box.active .issue-labels label,
+#issue-list ul li.issue-box.active .issue-status span{
+	color: #0077f5;
+	filter: none;
+}
+
+#issue-list ul li.issue-box.active .issue-status span{
+	border-color: #b5d3f3;
+}
 
 #issue-list ul li.issue-box .issue-id{
 	vertical-align: middle;
@@ -334,7 +361,7 @@ body{
 
 #issue-list ul li.issue-box .issue-labels label, #issue-labels label{
 	background-color: #f3f7fd;
-	border: 1px solid rgba(0,0,0,0.1);
+	border: 1px solid #b5d3f3;
 	border-radius: 3px;
 	color: #729fcc;
 	padding: 2px 4px;
