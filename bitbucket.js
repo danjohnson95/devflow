@@ -30,8 +30,6 @@ module.exports = {
 		opt.body = options.body || null;
 
 		this.getAccessToken(function(){
-			console.log(obj.access_token);
-
 			request({
 				url: obj.hostname+endpoint,
 				method: opt.method,
@@ -44,7 +42,7 @@ module.exports = {
 				if(err) throw err;
 				if(body.type && body.type == "error" && body.error.message == obj.refresh_error){
 					console.log('access token has expired');
-					obj.requestAccessToken(true, function(){
+					obj.refreshAccessToken(function(){
 						console.log('new token got');
 						obj.doAuthenticatedRequest(endpoint, opt, callback);
 					});
@@ -59,33 +57,34 @@ module.exports = {
 	/**
 	 * Sets the code that we need to get to get the access_token
 	 */
-	setRefreshToken: function(refresh_token, callback){
-		this.refresh_token = refresh_token;
-		//cache.set('config', {refresh_token: refresh_token}, function(err){
-		cache.config.update({type: 'refresh_token'}, {type: 'refresh_token', value: refresh_token}, {upsert: true}, function(err, num){
-			console.log(err);
-			console.log(num);
-			callback();
-		});
-	},
+	// setRefreshToken: function(refresh_token, callback){
+	// 	//cache.set('config', {refresh_token: refresh_token}, function(err){
+	// 	cache.config.update({type: 'refresh_token'}, {type: 'refresh_token', value: refresh_token}, {upsert: true}, function(err, num){
+	// 		console.log(err);
+	// 		console.log(num);
+	// 		callback();
+	// 	});
+	// },
 
 
 	/**
 	 * Sets the access token needed to authenticate API requests
 	 */
 	setAccessToken: function(access_token, callback){
+		console.log(this);
 		this.access_token = access_token;
 		cache.config.update({type: 'access_token'}, {type: 'access_token', value: access_token}, {upsert: true}, function(err, num){
 			callback();
 		});
-		//cache.set('config', {access_token: access_token}, function(){
-		//	callback();
-		//});
 	},
 
-	refreshAccessToken: function(callback){
 
+	setRefreshToken: function(refresh_token){
+		console.log(this);
+		this.refresh_token = refresh_token;
+		cache.config.update({type: 'refresh_token'}, {type: 'refresh_token', value: refresh_token}, {upsert: true});
 	},
+
 
 	/**
 	 * Gets the access token by first looking in this object,
@@ -95,7 +94,8 @@ module.exports = {
 	 	var obj = this;
 	 	if(!obj.access_token){
 	 		cache.config.findOne({type:'access_token'}, function(err, key){
-
+	 			console.log('okay weve got a key');
+	 			console.log(key);
 	 			if(!key || !key.value){
 	 				obj.requestAccessToken(true, callback);
 	 			}else{
@@ -106,47 +106,60 @@ module.exports = {
 	 	}else{
 	 		callback();
 	 	}
-	 },
+	},
+
+	refreshAccessToken: function(callback){
+
+		config.cache.findOne({type: 'refresh_token'}, function(err, key){
+			if(!key) throw "No refresh token found";
+			request({
+				url:'https://bitbucket.org/site/oauth2/access_token',
+				method:'post',
+				auth: {
+					user: config.key,
+					pass: config.secret
+				},
+				form: {
+					grant_type: 'refresh_token',
+					refresh_token: key.value
+				}
+			}, function(err, response, body){
+				resp = JSON.parse(body);
+				// TODO: Store the time in which this will expire, and then grab a new one before requesting.
+				obj.setAccessToken({
+					access_token: resp.access_token
+				});
+			});
+		});
+
+	},
+
 
 	/**
 	 * Requests an access token from BitBucket using OAuth2.0
 	 */
-	requestAccessToken: function(refresh, callback){
+	requestAccessToken: function(code, callback){
 		var obj = this,
 			resp = {};
 
-		cache.config.findOne({type: 'refresh_token'}, function(err, key){
-			console.log(key.value);
-			if(!key) throw "Your refresh token has gone";
-			
-			if(refresh){
-				var form = {
-					"grant_type": "refresh_token",
-					"refresh_token": key.value
-				}
-			}else{
-				var form = {
-					"grant_type": "authorization_code",
-					"code": key.value
-				}
-			}
-
-			request({
-			    url: 'https://bitbucket.org/site/oauth2/access_token',
-			    method:'post',
-			    auth: {
-			    	user: config.key,
-			    	pass: config.secret
-			    },
-			    form: form
-		  	}, function(err, response, body){
-		  		console.log(response);
-		  		resp = JSON.parse(body);
-		  		obj.setAccessToken(resp.access_token, function(){
-		  			callback();
-		  		});
-		  	});
-		});
+		request({
+		    url: 'https://bitbucket.org/site/oauth2/access_token',
+		    method:'post',
+		    auth: {
+		    	user: config.key,
+		    	pass: config.secret
+		    },
+		    form: {
+		    	grant_type: 'authorization_code',
+		    	code: code
+		    }
+	  	}, function(err, response, body){
+	  		resp = JSON.parse(body);
+	  		obj.setRefreshToken(resp.refresh_token);
+	  		obj.setAccessToken(resp.access_token, function(){
+	  			callback();
+	  		});
+	  	});
 	},
 
 
