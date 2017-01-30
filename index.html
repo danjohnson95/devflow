@@ -9,7 +9,7 @@
   <body>
 
     <div id="sidebar">
-      
+
       <div class="top-actions">
         <div class="global-settings">
           <img src="icons/cog.svg">
@@ -97,25 +97,11 @@
         </div>
         <div id="issue-assignees">
           Assigned to <span class="user">@danjohnson95</span>
-        </div>        
-      </div>
-
-      <div id="issue-description" class="issue-comment-box">
-        <div class="issue-user">
-          <img src="" width=20 height=20>
-          <span class="user-name">Dan Johnson</span>
-          <span class="posted-time">6 minutes ago</span>
-        </div>
-        <p class="issue-content">
-        </p>
-        <div class="attachments hide">
-          <span>Attachments</span>
-          <div></div>
         </div>
       </div>
 
-      <div id="issue-comments">
-        <div class="issue-comment-box template">
+      <div id="issue-contents-scroll">
+        <div id="issue-description" class="issue-comment-box">
           <div class="issue-user">
             <img src="" width=20 height=20>
             <span class="user-name">Dan Johnson</span>
@@ -123,7 +109,27 @@
           </div>
           <p class="issue-content">
           </p>
+          <div class="attachments hide">
+            <span>Attachments</span>
+            <div></div>
+          </div>
         </div>
+
+        <div id="issue-comments">
+          <div class="issue-comment-box template">
+            <div class="issue-user">
+              <img src="" width=20 height=20>
+              <span class="user-name">Dan Johnson</span>
+              <span class="posted-time">6 minutes ago</span>
+            </div>
+            <p class="issue-content">
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="issue-new-comment">
+
       </div>
 
 
@@ -132,7 +138,7 @@
     <div id="modal-background"></div>
     <div id="new-issue-modal" class="modal-outer">
       <div class="modal-inner">
-        <div class="modal-header">  
+        <div class="modal-header">
           New Issue
         </div>
         <div class="modal-body">
