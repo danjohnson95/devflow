@@ -84,21 +84,27 @@ var obj = {
 		template.dataset.id = issue.id;
 		template.dataset.repo_id = issue.repository.uuid;
 		template.dataset.repo_slug = issue.repository.full_name;
+		template.dataset.issue_kind = issue.kind;
+		template.dataset.issue_state = issue.state;
+		template.dataset.disabled = (issue.state == "closed" || issue.state == "resolved");
 
-		template.querySelector('.priority').dataset.priority = issue.priority;
+		var issueAssignees = template.querySelector('.issue-assignees span');
+		issueAssignees.classList.contains('user') ? issueAssignees.classList.remove('user') : "";
+
+		template.querySelector('.priority').setAttribute('title', issue.priority);
 		template.querySelector('.issue-status').dataset.state = issue.state;
 		template.querySelector('.issue-status .issue-status-label').innerHTML = issue.state;
+
 		template.querySelector('.issue-id').innerHTML = "#"+issue.id;
 		template.querySelector('.issue-date').innerHTML = issue.updated_html;
 		template.querySelector('.issue-title').innerHTML = issue.title;
 		template.querySelector('.issue-labels label').innerHTML = issue.kind;
 
 		if(issue.assignee){
-			template.querySelector('.issue-assignees span').innerHTML = "@"+issue.assignee.username;
-			!template.querySelector('.issue-assignees span').classList.contains('user') ? template.querySelector('.issue-assignees span').classList.add('user') : "";
+			issueAssignees.innerHTML = "@"+issue.assignee.username;
+			issueAssignees.classList.add('user');
 		}else{
-			template.querySelector('.issue-assignees span').innerHTML = "nobody";
-			template.querySelector('.issue-assignees span').classList.contains('user') ? template.querySelector('.issue-assignees span').classList.remove('user') : "";
+			issueAssignees.innerHTML = "nobody";
 		}
 
 		return template.outerHTML;

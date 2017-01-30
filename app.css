@@ -284,23 +284,37 @@ body{
 
 }
 
-#issue-list ul li.issue-box .priority[data-priority=critical]{
+#issue-list ul li.issue-box[data-disabled=true]{
+	background-color: #fafafa;
+	color: rgba(0,0,0,0.4);
+	filter: grayscale();
+}
+
+#issue-list ul li.issue-box[data-disabled=true] .issue-assignees span.user{
+	color: rgba(0,0,0,0.4);
+}
+
+#issue-list ul li.issue-box[data-disabled=true] .issue-status span{
+	color: rgba(0,0,0,0.4);
+}
+
+#issue-list ul li.issue-box .priority[title=critical]{
 	background-image: url(icons/angle-double-up.svg);
 }
 
-#issue-list ul li.issue-box .priority[data-priority=major]{
+#issue-list ul li.issue-box .priority[title=major]{
 	background-image: url(icons/angle-up.svg);	
 }
 
-#issue-list ul li.issue-box .priority[data-priority=minor]{
+#issue-list ul li.issue-box .priority[title=minor]{
 	background-image: url(icons/angle-down.svg);
 }
 
-#issue-list ul li.issue-box .priority[data-priority=trivial]{
+#issue-list ul li.issue-box .priority[title=trivial]{
 	background-image: url(icons/angle-double-down.svg);
 }
 
-#issue-list ul li.issue-box .priority[data-priority=blocker]{
+#issue-list ul li.issue-box .priority[title=blocker]{
 	background-image: url(icons/angle-double-up.svg);
 }
 
