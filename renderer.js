@@ -41,6 +41,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	issueContents.querySelector('.issue-id').innerHTML = "#"+message.id;
 	issueContents.querySelector('#issue-title').innerHTML = message.title;
 	issueContents.querySelector('#issue-labels label').innerHTML = message.kind;
+	issueContents.querySelector('#issue-labels label').dataset.kind = message.kind;
 	issueContents.querySelector('#issue-contents-details .vote-and-watch .vote span').innerHTML = message.votes;
 	issueContents.querySelector('#issue-contents-details .vote-and-watch .watch span').innerHTML = message.watches;
 	issueContents.querySelector('#issue-description .issue-user img').setAttribute('src', message.reporter.links.avatar.href);

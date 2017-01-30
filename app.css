@@ -315,19 +315,22 @@ body{
 	background-image: url(icons/angle-double-up.svg);
 }
 
-#issue-list ul li.issue-box[data-issue_kind="bug"] .issue-labels label{
+#issue-list ul li.issue-box[data-issue_kind="bug"] .issue-labels label,
+#issue-labels label[data-kind="bug"]{
 	background-color: #fef3f2;
 	color: #ca0601;
 	border-color: #f56a67;
 }
 
-#issue-list ul li.issue-box[data-issue_kind="enhancement"] .issue-labels label{
+#issue-list ul li.issue-box[data-issue_kind="enhancement"] .issue-labels label,
+#issue-labels label[data-kind="enhancement"]{
 	background-color: #f3f9f3;
 	color: #177b1e;
 	border-color: #6eb973;
 }
 
-#issue-list ul li.issue-box[data-issue_kind="proposal"] .issue-labels label{
+#issue-list ul li.issue-box[data-issue_kind="proposal"] .issue-labels label,
+#issue-labels label[data-kind="proposal"]{
 	background-color: #fefbf1;
 	color: #d5ac04;
 	border-color: #fddf68;
@@ -338,13 +341,6 @@ body{
 	background-color: transparent;
 	color: rgba(0,0,0,0.4);
 }
-
-/*#issue-list ul li.issue-box[data-issue_kind="task"] .issue-labels label{
-	background-color: #f6f4fe;
-	color: #5c30cb;
-	border-color: #9875f1;
-}*/
-
 
 #issue-list ul li.issue-box.active{
 	background-color: #f4f9ff;
