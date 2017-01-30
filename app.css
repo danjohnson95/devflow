@@ -200,6 +200,7 @@ body{
 	left: 225px;
 	width: 339px;
 	z-index: 1;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.05);
 }
 #issue-list #search-box input{
 	border: 0;
@@ -422,7 +423,7 @@ body{
 }
 
 #issue-contents-scroll{
-	height: calc(100% - 230px);
+	height: calc(100% - 170px);
 	overflow-y: auto;
 }
 
@@ -434,11 +435,13 @@ body{
 	height: 50px;
 	right: 0;
 	border-top: 1px solid rgba(0,0,0,0.1);
+	box-shadow: 0 -1px 1px rgba(0,0,0,0.05);
 }
 
 #issue-contents #issue-contents-head{
 	background-color: #fff;
 	border-bottom: 1px solid rgba(0,0,0,0.05);
+	box-shadow: 0 1px 1px rgba(0,0,0,0.05);
 	padding: 1em 2.5em;
 }
 
