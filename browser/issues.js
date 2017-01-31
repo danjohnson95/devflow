@@ -90,6 +90,7 @@ var obj = {
 		obj.clearComments();
 
 		!issueContents.querySelector('.placeholder').classList.contains('hide') ? issueContents.querySelector('.placeholder').classList.add('hide') : "";
+		!issueContents.querySelector('#issue-assignees span').classList.contains('user') ? issueContents.querySelector('#issue-assignees span').classList.remove('user') : "";
 
 		issueContents.querySelector('.issue-id').innerHTML = "#"+elem.dataset.id;
 		issueContents.querySelector('#issue-title').innerHTML = elem.querySelector('.issue-title').innerHTML;
@@ -105,6 +106,12 @@ var obj = {
 		contentsDescription.querySelector('.user-name').innerHTML = elem.dataset.author_name;
 		contentsDescription.querySelector('.posted-time').innerHTML = timeAgo.html(elem.dataset.created_on);
 		contentsDescription.querySelector('p.issue-content').innerHTML = JSON.parse(elem.dataset.content) != "" ? JSON.parse(elem.dataset.content) : "<em>No description</em>";
+
+		issueContents.querySelector('#issue-assignees span').innerHTML = "@"+elem.dataset.assignee;
+		if(elem.dataset.assignee != "nobody"){
+			issueContents.querySelector('#issue-assignees span').classList.add('user');
+		}
+
 	},
 
 	clickIssue: function(elem){
@@ -140,6 +147,7 @@ var obj = {
 		template.dataset.votes = issue.votes;
 		template.dataset.watches = issue.watches;
 		template.dataset.content = JSON.stringify(issue.content.html);
+		template.dataset.assignee = (issue.assignee ? issue.assignee.username : "nobody");
 
 		var issueAssignees = template.querySelector('.issue-assignees span');
 		issueAssignees.classList.contains('user') ? issueAssignees.classList.remove('user') : "";

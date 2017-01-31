@@ -74,6 +74,7 @@ module.exports = {
 		console.log(this);
 		this.access_token = access_token;
 		cache.config.update({type: 'access_token'}, {type: 'access_token', value: access_token}, {upsert: true}, function(err, num){
+			console.log('token set');
 			callback();
 		});
 	},
@@ -110,7 +111,8 @@ module.exports = {
 
 	refreshAccessToken: function(callback){
 
-		config.cache.findOne({type: 'refresh_token'}, function(err, key){
+		var obj = this;
+		cache.config.findOne({type: 'refresh_token'}, function(err, key){
 			if(!key) throw "No refresh token found";
 			request({
 				url:'https://bitbucket.org/site/oauth2/access_token',
@@ -126,9 +128,8 @@ module.exports = {
 			}, function(err, response, body){
 				resp = JSON.parse(body);
 				// TODO: Store the time in which this will expire, and then grab a new one before requesting.
-				obj.setAccessToken({
-					access_token: resp.access_token
-				});
+				console.log(resp);
+				obj.setAccessToken(resp.access_token, callback);
 			});
 		});
 
