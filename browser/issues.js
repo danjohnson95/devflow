@@ -9,6 +9,7 @@ const {ipcRenderer} = require('electron'),
 	issueContentsPlaceholder = issueContents.querySelector('.placeholder'),
 	contentsVoteWatch = issueContents.querySelector('#issue-contents-details .vote-and-watch'),
 	contentsDescription = issueContents.querySelector('#issue-description'),
+	issueLoading = issueListOuter.querySelector('.loading'),
 	timeAgo = require('../timeago.js');
 	
 
@@ -23,6 +24,14 @@ var obj = {
 
 	requestOneIssue: function(issue){
 		ipcRenderer.send('show-issue', issue);
+	},
+
+	loading: function(state){
+		if(state && !issueLoading.classList.contains('show')){
+			issueLoading.classList.add('show');
+		}else if(!state && issueLoading.classList.contains('show')){
+			issueLoading.classList.remove('show');
+		}
 	},
 
 	clearList: function(){
