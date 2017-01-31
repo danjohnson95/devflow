@@ -137,9 +137,23 @@ ipcMain.on('show-issues', (event, arg) => {
     if(issues.length){
       issues = {values: issues, repo_id: arg};
       mainWindow.webContents.send('issues', issues);
-    }else{
+    }
+
+    if(!issues.length || new Date.now() + 300000 > cacheDate){
+      console.log('start loading');
+      mainWindow.webContents.send('loading', {
+        box: 1,
+        state: 1
+      });
+
       BitBucket.getIssues(arg.repo_slug, function(err, issues){
         mainWindow.webContents.send('issues', issues);
+
+        mainWindow.webContents.send('loading', {
+          box: 1,
+          state: 0
+        });
+
       });
     }
   });
@@ -156,10 +170,28 @@ ipcMain.on('show-issue', (event, arg) => {
     
     if(issue){
       mainWindow.webContents.send('issue', issue);
-    }else{
+    }
+
+    // Refresh the cache if it's older than 5 minutes.
+    var cacheDate = new Date(issue.cached_on);
+    if(!issue || new Date.now() + 300000 > cacheDate){ 
+
+      mainWindow.webContents.send('loading', {
+        box: 2,
+        state: 1
+      });
+
       BitBucket.getIssueDetail(arg.repo_slug, arg.repo_id, arg.issue_id, function(err, issue){
         mainWindow.webContents.send('issue', issue);
+
+        mainWindow.webContents.send('loading', {
+          box: 2,
+          state: 0
+        });
+
       });
+
+    }
 
       // BitBucket.getIssue(arg.repo_slug, arg.issue_id, function(err, issue){
       //   mainWindow.webContents.send('issue', issue);
@@ -172,7 +204,6 @@ ipcMain.on('show-issue', (event, arg) => {
       // BitBucket.getIssueComments(arg.repo_slug, arg.issue_id, function(err, comments){
       //   mainWindow.webContents.send('comments', comments);
       // });
-    }
   });
 });
 
