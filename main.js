@@ -132,6 +132,7 @@ ipcMain.on('show-repos', (event, arg) => {
 })
 
 ipcMain.on('show-issues', (event, arg) => {
+
   cache.issues.find({repo_id: arg.repo_id}, function(err, issues){
     if(issues.length){
       issues = {values: issues, repo_id: arg};
@@ -146,24 +147,30 @@ ipcMain.on('show-issues', (event, arg) => {
 
 ipcMain.on('show-issue', (event, arg) => {
 
-  console.log(arg);
+  // Before this used to show the issue contents, but we already have it now!
+  // So here we're just gonna be pulling out the attachments and comments.
 
   cache.issue.findOne({repo_id: arg.repo_id, id: parseInt(arg.issue_id)}, function(err, issue){
 
     if(issue){
       mainWindow.webContents.send('issue', issue);
     }else{
-      BitBucket.getIssue(arg.repo_slug, arg.issue_id, function(err, issue){
-        mainWindow.webContents.send('issue', issue);
+
+      BitBucket.getIssueDetail(arg.repo_slug, arg.repo_id, arg.issue_id, function(err, issue){
+        console.log(issue);
       });
 
-      BitBucket.getIssueAttachments(arg.repo_slug, arg.issue_id, function(err, attachments){
-        mainWindow.webContents.send('attachments', attachments);
-      });
+      // BitBucket.getIssue(arg.repo_slug, arg.issue_id, function(err, issue){
+      //   mainWindow.webContents.send('issue', issue);
+      // });
 
-      BitBucket.getIssueComments(arg.repo_slug, arg.issue_id, function(err, comments){
-        mainWindow.webContents.send('comments', comments);
-      });
+      // BitBucket.getIssueAttachments(arg.repo_slug, arg.issue_id, function(err, attachments){
+      //   mainWindow.webContents.send('attachments', attachments);
+      // });
+
+      // BitBucket.getIssueComments(arg.repo_slug, arg.issue_id, function(err, comments){
+      //   mainWindow.webContents.send('comments', comments);
+      // });
     }
   });
 });

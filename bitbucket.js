@@ -214,23 +214,32 @@ module.exports = {
 	/**
 	 * Returns an object of an individual issue, using the provided repo and issue ID
 	 */
-	getIssue: function(repo_slug, issue_id, callback){
-		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id, {}, function(err, issue){
-			issue.created_html = timeAgo.html(issue.created_on);
-			issue.repo_id = issue.repository.uuid;
-			cache.issue.update({repo_id: issue.repository.uuid, id: issue.id}, issue, {upsert: true}, function(err, num){
-				callback(err, issue);
-			})
+	getIssueDetail: function(repo_slug, repo_id, issue_id, callback){
+
+		var getAttachments = this.getIssueAttachments(repo_slug, issue_id);
+		var getComments = this.getIssueComments(repo_slug, issue_id);
+
+		Promise.all([getAttachments, getComments]).then(values => {
+			console.log(values);
+			cache.issue.update({repo_id: repo_id, issue_id: parseInt(issue_id)}, {attachments: values[0].values, comments: values[1].values}, {upsert: true}, function(err, issue){
+				console.log(issue);
+				callback(issue);
+			});
 		});
+
 	},
 
 
 	/**
 	 * Returns an object containing any attachments relating to the issue provided.
 	 */
-	getIssueAttachments: function(repo_slug, issue_id, callback){
-		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/attachments', {}, function(err, attachments){
-			callback(err, attachments);
+	getIssueAttachments: function(repo_slug, issue_id){
+		var obj = this;
+		return new Promise(function(resolve, reject){
+			obj.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/attachments', {}, function(err, attachments){
+				if(err) reject(err);
+				resolve(attachments);
+			});
 		});
 	},
 
@@ -238,14 +247,20 @@ module.exports = {
 	/**
 	 * Returns an object containing comments relating to the issue provided.
 	 */
-	getIssueComments: function(repo_slug, issue_id, callback){
-		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/comments', {}, function(err, comments){
-			if(comments.values.length > 0){
-				comments.values.forEach(function(e, i){
-					comments.values[i].created_html = timeAgo.html(e.created_on);
-				});
-			}
-			callback(err, comments);
+	getIssueComments: function(repo_slug, issue_id){
+		var obj = this;
+		return new Promise(function(resolve, reject){
+			obj.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/comments', {}, function(err, comments){
+			
+				if(err) reject(err);
+				if(comments.values.length > 0){
+					comments.values.forEach(function(e, i){
+						comments.values[i].created_html = timeAgo.html(e.created_on);
+					});
+				}
+				resolve(comments);
+
+			});
 		});
 	},
 

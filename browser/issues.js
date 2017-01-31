@@ -104,11 +104,11 @@ var obj = {
 		obj.makeAllLinksInactive();
 		elem.classList.add('active');
 		obj.showBareDetails(elem);
-		// obj.requestOneIssue({
-		// 	repo_id: elem.dataset.repo_id,
-		// 	issue_id: elem.dataset.id,
-		// 	repo_slug: elem.dataset.repo_slug
-		// });
+		obj.requestOneIssue({
+			repo_id: elem.dataset.repo_id,
+			issue_id: elem.dataset.id,
+			repo_slug: elem.dataset.repo_slug
+		});
 	},
 
 	registerEventListeners: function(){
