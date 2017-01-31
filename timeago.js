@@ -2,7 +2,7 @@ module.exports = {
 
     short_month: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"],
     long_month: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    long_days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    long_days: ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
     suffix_st: [1, 21, 31],
     suffix_nd: [2, 22],
     suffix_rd: [3, 23],

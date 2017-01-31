@@ -1,6 +1,7 @@
 const 	request = require('request'),
 		timeAgo = require('./timeago.js'),
-		cache = require('./cache.js');
+		cache = require('./cache.js'),
+		config = require('./config.js');
 
 module.exports = {
 
@@ -73,6 +74,7 @@ module.exports = {
 		console.log(this);
 		this.access_token = access_token;
 		cache.config.update({type: 'access_token'}, {type: 'access_token', value: access_token}, {upsert: true}, function(err, num){
+			console.log('token set');
 			callback();
 		});
 	},
@@ -109,14 +111,15 @@ module.exports = {
 
 	refreshAccessToken: function(callback){
 
-		config.cache.findOne({type: 'refresh_token'}, function(err, key){
+		var obj = this;
+		cache.config.findOne({type: 'refresh_token'}, function(err, key){
 			if(!key) throw "No refresh token found";
 			request({
 				url:'https://bitbucket.org/site/oauth2/access_token',
 				method:'post',
 				auth: {
-					user: "XQZgdxhJ6B65Cnk3UQ",
-					pass: "EJ5UgWBpK2njZs73CJwWyVXGURJSxYA8"
+					user: config.key,
+					pass: config.secret
 				},
 				form: {
 					grant_type: 'refresh_token',
@@ -125,9 +128,8 @@ module.exports = {
 			}, function(err, response, body){
 				resp = JSON.parse(body);
 				// TODO: Store the time in which this will expire, and then grab a new one before requesting.
-				obj.setAccessToken({
-					access_token: resp.access_token
-				});
+				console.log(resp);
+				obj.setAccessToken(resp.access_token, callback);
 			});
 		});
 
@@ -145,8 +147,8 @@ module.exports = {
 		    url: 'https://bitbucket.org/site/oauth2/access_token',
 		    method:'post',
 		    auth: {
-		    	user: "XQZgdxhJ6B65Cnk3UQ",
-		    	pass: "EJ5UgWBpK2njZs73CJwWyVXGURJSxYA8"
+		    	user: config.key,
+		    	pass: config.secret
 		    },
 		    form: {
 		    	grant_type: 'authorization_code',
@@ -213,23 +215,30 @@ module.exports = {
 	/**
 	 * Returns an object of an individual issue, using the provided repo and issue ID
 	 */
-	getIssue: function(repo_slug, issue_id, callback){
-		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id, {}, function(err, issue){
-			issue.created_html = timeAgo.html(issue.created_on);
-			issue.repo_id = issue.repository.uuid;
-			cache.issue.update({repo_id: issue.repository.uuid, id: issue.id}, issue, {upsert: true}, function(err, num){
-				callback(err, issue);
-			})
+	getIssueDetail: function(repo_slug, repo_id, issue_id, callback){
+
+		var getAttachments = this.getIssueAttachments(repo_slug, issue_id);
+		var getComments = this.getIssueComments(repo_slug, issue_id);
+
+		Promise.all([getAttachments, getComments]).then(values => {
+			cache.issue.update({repo_id: repo_id, id: parseInt(issue_id)}, {attachments: values[0].values, comments: values[1].values}, {upsert: true}, function(err, num, issue){
+				callback(null, issue);
+			});
 		});
+
 	},
 
 
 	/**
 	 * Returns an object containing any attachments relating to the issue provided.
 	 */
-	getIssueAttachments: function(repo_slug, issue_id, callback){
-		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/attachments', {}, function(err, attachments){
-			callback(err, attachments);
+	getIssueAttachments: function(repo_slug, issue_id){
+		var obj = this;
+		return new Promise(function(resolve, reject){
+			obj.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/attachments', {}, function(err, attachments){
+				if(err) reject(err);
+				resolve(attachments);
+			});
 		});
 	},
 
@@ -237,14 +246,20 @@ module.exports = {
 	/**
 	 * Returns an object containing comments relating to the issue provided.
 	 */
-	getIssueComments: function(repo_slug, issue_id, callback){
-		this.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/comments', {}, function(err, comments){
-			if(comments.values.length > 0){
-				comments.values.forEach(function(e, i){
-					comments.values[i].created_html = timeAgo.html(e.created_on);
-				});
-			}
-			callback(err, comments);
+	getIssueComments: function(repo_slug, issue_id){
+		var obj = this;
+		return new Promise(function(resolve, reject){
+			obj.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/comments', {}, function(err, comments){
+			
+				if(err) reject(err);
+				if(comments.values.length > 0){
+					comments.values.forEach(function(e, i){
+						comments.values[i].created_html = timeAgo.html(e.created_on);
+					});
+				}
+				resolve(comments);
+
+			});
 		});
 	},
 

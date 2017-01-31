@@ -2,12 +2,18 @@ const {ipcRenderer} = require('electron'),
 	issueListOuter = document.getElementById('issue-list'),
 	issueList = issueListOuter.querySelector('#issue-list-inner'),
 	issueContents = document.getElementById('issue-contents'),
+	issueComments = document.getElementById('issue-comments')
 	template = issueList.querySelector('.template'),
+	issueCommentTemplate = issueComments.querySelector('.template'),
 	issueListPlaceholder = issueListOuter.querySelector('.placeholder'),
-	issueContentsPlaceholder = issueContents.querySelector('.placeholder');
+	issueContentsPlaceholder = issueContents.querySelector('.placeholder'),
+	contentsVoteWatch = issueContents.querySelector('#issue-contents-details .vote-and-watch'),
+	contentsDescription = issueContents.querySelector('#issue-description'),
+	timeAgo = require('../timeago.js');
 	
 
 	template.classList.remove('template');
+	issueCommentTemplate.classList.remove('template');
 
 var obj = {
 
@@ -23,6 +29,10 @@ var obj = {
 		issueList.innerHTML = "";
 	},
 
+	clearComments: function(){
+		issueComments.innerHTML = "";
+	},
+
 	showIssueContentsPlaceholder: function(){
 		issueContentsPlaceholder.classList.contains('hide') ? issueContentsPlaceholder.classList.remove('hide') : "";
 	},
@@ -31,13 +41,32 @@ var obj = {
 		!issueListPlaceholder.classList.contains('hide') ? issueListPlaceholder.classList.add('hide') : "";
 	},
 
+	showIssueListPlaceholder: function(){
+		issueListPlaceholder.innerHTML = "Select a repo to begin";
+		issueListPlaceholder.classList.contains('hide') ? issueListPlaceholder.classList.remove('hide') : "";
+	},
+
+	hideEmptyIssues: function(){
+		obj.hideIssueListPlaceholder();
+	},
+
+	showEmptyIssues: function(){
+		issueListPlaceholder.innerHTML = "No issues here!";
+		issueListPlaceholder.classList.contains('hide') ? issueListPlaceholder.classList.remove('hide') : "";
+	},
+
 	insertIssues: function(issues){
 		obj.clearList();
 		obj.showIssueContentsPlaceholder();
 		obj.hideIssueListPlaceholder();
-		issues.forEach(function(e){
-			issueList.innerHTML += obj.generateNewIssueBlockHTML(e);
-		});
+		if(!issues || !issues.length){
+			obj.showEmptyIssues();
+		}else{
+			obj.hideEmptyIssues();
+			issues.forEach(function(e){
+				issueList.innerHTML += obj.generateNewIssueBlockHTML(e);
+			});
+		}
 		obj.registerEventListeners();
 	},
 
@@ -56,8 +85,33 @@ var obj = {
 		});
 	},
 
-	showBareDetails: function(){
-		// TODO: Show the bare details we already have in the contents box.
+	showBareDetails: function(elem){
+		
+		obj.clearComments();
+
+		!issueContents.querySelector('.placeholder').classList.contains('hide') ? issueContents.querySelector('.placeholder').classList.add('hide') : "";
+		!issueContents.querySelector('#issue-assignees span').classList.contains('user') ? issueContents.querySelector('#issue-assignees span').classList.remove('user') : "";
+
+		issueContents.querySelector('.issue-id').innerHTML = "#"+elem.dataset.id;
+		issueContents.querySelector('#issue-title').innerHTML = elem.querySelector('.issue-title').innerHTML;
+		issueContents.querySelector('#issue-labels label').innerHTML = elem.querySelector('.issue-labels label').innerHTML;
+		issueContents.querySelector('#issue-labels label').dataset.kind = elem.dataset.issue_kind;
+
+
+
+		contentsVoteWatch.querySelector('.vote span').innerHTML = elem.dataset.votes;
+		contentsVoteWatch.querySelector('.watch span').innerHTML = elem.dataset.watches;
+		
+		contentsDescription.querySelector('.issue-user img').setAttribute('src', elem.dataset.author_img);
+		contentsDescription.querySelector('.user-name').innerHTML = elem.dataset.author_name;
+		contentsDescription.querySelector('.posted-time').innerHTML = timeAgo.html(elem.dataset.created_on);
+		contentsDescription.querySelector('p.issue-content').innerHTML = JSON.parse(elem.dataset.content) != "" ? JSON.parse(elem.dataset.content) : "<em>No description</em>";
+
+		issueContents.querySelector('#issue-assignees span').innerHTML = "@"+elem.dataset.assignee;
+		if(elem.dataset.assignee != "nobody"){
+			issueContents.querySelector('#issue-assignees span').classList.add('user');
+		}
+
 	},
 
 	clickIssue: function(elem){
@@ -87,6 +141,13 @@ var obj = {
 		template.dataset.issue_kind = issue.kind;
 		template.dataset.issue_state = issue.state;
 		template.dataset.disabled = (issue.state == "closed" || issue.state == "resolved");
+		template.dataset.author_img = issue.reporter.links.avatar.href;
+		template.dataset.author_name = issue.reporter.display_name;
+		template.dataset.created_on = issue.created_on;
+		template.dataset.votes = issue.votes;
+		template.dataset.watches = issue.watches;
+		template.dataset.content = JSON.stringify(issue.content.html);
+		template.dataset.assignee = (issue.assignee ? issue.assignee.username : "nobody");
 
 		var issueAssignees = template.querySelector('.issue-assignees span');
 		issueAssignees.classList.contains('user') ? issueAssignees.classList.remove('user') : "";
@@ -109,6 +170,32 @@ var obj = {
 
 		return template.outerHTML;
 
+	},
+
+	insertComments: function(comments){
+		//issueComments.innerHTML = "";
+		if(comments.length < 1) return;
+		comments.forEach(function(e, i){
+			if(e.content.html == "") return;
+			issueCommentTemplate.querySelector('.issue-user img').setAttribute('src', e.user.links.avatar.href);
+			issueCommentTemplate.querySelector('.issue-user .user-name').innerHTML = e.user.display_name;
+			issueCommentTemplate.querySelector('.issue-user .posted-time').innerHTML = e.created_html;
+			issueCommentTemplate.querySelector('p.issue-content').innerHTML = e.content.html;
+			issueComments.innerHTML += issueCommentTemplate.outerHTML;
+		});
+	},
+
+	insertAttachments: function(attachments){
+		if(attachments.length < 1){
+			!issueContents.querySelector('#issue-description .attachments').classList.contains('hide') ? issueContents.querySelector('#issue-description .attachments').classList.add('hide') : "";	
+			return;
+		}
+		var html = "";
+		attachments.forEach(function(e, i){
+			html += "<div data-src='"+e.links.self.href[0]+"'>"+e.name+"</div>";
+		});
+		issueContents.querySelector('#issue-description .attachments div').innerHTML = html;
+		issueContents.querySelector('#issue-description .attachments').classList.contains('hide') ? issueContents.querySelector('#issue-description .attachments').classList.remove('hide') : "";
 	}
 
 
