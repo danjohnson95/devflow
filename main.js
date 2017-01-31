@@ -157,7 +157,7 @@ ipcMain.on('show-issue', (event, arg) => {
     }else{
 
       BitBucket.getIssueDetail(arg.repo_slug, arg.repo_id, arg.issue_id, function(err, issue){
-        console.log(issue);
+        mainWindow.webContents.send('issue', issue);
       });
 
       // BitBucket.getIssue(arg.repo_slug, arg.issue_id, function(err, issue){
