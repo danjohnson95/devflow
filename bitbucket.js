@@ -220,7 +220,7 @@ module.exports = {
 		var getComments = this.getIssueComments(repo_slug, issue_id);
 
 		Promise.all([getAttachments, getComments]).then(values => {
-			cache.issue.update({repo_id: repo_id, issue_id: parseInt(issue_id)}, {attachments: values[0].values, comments: values[1].values}, {upsert: true}, function(err, num, issue){
+			cache.issue.update({repo_id: repo_id, id: parseInt(issue_id)}, {attachments: values[0].values, comments: values[1].values}, {upsert: true}, function(err, num, issue){
 				callback(null, issue);
 			});
 		});

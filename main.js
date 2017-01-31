@@ -152,10 +152,11 @@ ipcMain.on('show-issue', (event, arg) => {
 
   cache.issue.findOne({repo_id: arg.repo_id, id: parseInt(arg.issue_id)}, function(err, issue){
 
+    console.log(issue);
+    
     if(issue){
       mainWindow.webContents.send('issue', issue);
     }else{
-
       BitBucket.getIssueDetail(arg.repo_slug, arg.repo_id, arg.issue_id, function(err, issue){
         mainWindow.webContents.send('issue', issue);
       });

@@ -2,7 +2,9 @@ const {ipcRenderer} = require('electron'),
 	issueListOuter = document.getElementById('issue-list'),
 	issueList = issueListOuter.querySelector('#issue-list-inner'),
 	issueContents = document.getElementById('issue-contents'),
+	issueComments = document.getElementById('issue-comments')
 	template = issueList.querySelector('.template'),
+	issueCommentTemplate = issueComments.querySelector('.template'),
 	issueListPlaceholder = issueListOuter.querySelector('.placeholder'),
 	issueContentsPlaceholder = issueContents.querySelector('.placeholder'),
 	contentsVoteWatch = issueContents.querySelector('#issue-contents-details .vote-and-watch'),
@@ -11,6 +13,7 @@ const {ipcRenderer} = require('electron'),
 	
 
 	template.classList.remove('template');
+	issueCommentTemplate.classList.remove('template');
 
 var obj = {
 
@@ -24,6 +27,10 @@ var obj = {
 
 	clearList: function(){
 		issueList.innerHTML = "";
+	},
+
+	clearComments: function(){
+		issueComments.innerHTML = "";
 	},
 
 	showIssueContentsPlaceholder: function(){
@@ -79,7 +86,9 @@ var obj = {
 	},
 
 	showBareDetails: function(elem){
-		// TODO: Show the bare details we already have in the contents box.
+		
+		obj.clearComments();
+
 		!issueContents.querySelector('.placeholder').classList.contains('hide') ? issueContents.querySelector('.placeholder').classList.add('hide') : "";
 
 		issueContents.querySelector('.issue-id').innerHTML = "#"+elem.dataset.id;
@@ -144,8 +153,6 @@ var obj = {
 		template.querySelector('.issue-title').innerHTML = issue.title;
 		template.querySelector('.issue-labels label').innerHTML = issue.kind;
 
-		console.log(issue);
-
 		if(issue.assignee){
 			issueAssignees.innerHTML = "@"+issue.assignee.username;
 			issueAssignees.classList.add('user');
@@ -155,6 +162,32 @@ var obj = {
 
 		return template.outerHTML;
 
+	},
+
+	insertComments: function(comments){
+		//issueComments.innerHTML = "";
+		if(comments.length < 1) return;
+		comments.forEach(function(e, i){
+			if(e.content.html == "") return;
+			issueCommentTemplate.querySelector('.issue-user img').setAttribute('src', e.user.links.avatar.href);
+			issueCommentTemplate.querySelector('.issue-user .user-name').innerHTML = e.user.display_name;
+			issueCommentTemplate.querySelector('.issue-user .posted-time').innerHTML = e.created_html;
+			issueCommentTemplate.querySelector('p.issue-content').innerHTML = e.content.html;
+			issueComments.innerHTML += issueCommentTemplate.outerHTML;
+		});
+	},
+
+	insertAttachments: function(attachments){
+		if(attachments.length < 1){
+			!issueContents.querySelector('#issue-description .attachments').classList.contains('hide') ? issueContents.querySelector('#issue-description .attachments').classList.add('hide') : "";	
+			return;
+		}
+		var html = "";
+		attachments.forEach(function(e, i){
+			html += "<div data-src='"+e.links.self.href[0]+"'>"+e.name+"</div>";
+		});
+		issueContents.querySelector('#issue-description .attachments div').innerHTML = html;
+		issueContents.querySelector('#issue-description .attachments').classList.contains('hide') ? issueContents.querySelector('#issue-description .attachments').classList.remove('hide') : "";
 	}
 
 
