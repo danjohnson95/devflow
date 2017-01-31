@@ -47,4 +47,15 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	if(repoList.getCurrentRepo() == message.repository.full_name){
 		issues.prependIssue(message);
 	}
-});
+}).on('loading', (event, message) => {
+	console.log(message);
+	switch(message.box){
+		case 0:
+			break;
+		case 1:
+			issues.loading(message.state);
+			break;
+		case 2:
+			break;
+	}
+})
