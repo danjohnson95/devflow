@@ -41,9 +41,7 @@ module.exports = {
 			}, function(err, resp, body){
 				if(err) throw err;
 				if(body.type && body.type == "error" && body.error.message == obj.refresh_error){
-					console.log('access token has expired');
 					obj.refreshAccessToken(function(){
-						console.log('new token got');
 						obj.doAuthenticatedRequest(endpoint, opt, callback);
 					});
 				}else{
@@ -55,33 +53,19 @@ module.exports = {
 
 
 	/**
-	 * Sets the code that we need to get to get the access_token
-	 */
-	// setRefreshToken: function(refresh_token, callback){
-	// 	//cache.set('config', {refresh_token: refresh_token}, function(err){
-	// 	cache.config.update({type: 'refresh_token'}, {type: 'refresh_token', value: refresh_token}, {upsert: true}, function(err, num){
-	// 		console.log(err);
-	// 		console.log(num);
-	// 		callback();
-	// 	});
-	// },
-
-
-	/**
 	 * Sets the access token needed to authenticate API requests
 	 */
 	setAccessToken: function(access_token, callback){
-		console.log(this);
 		this.access_token = access_token;
 		cache.config.update({type: 'access_token'}, {type: 'access_token', value: access_token}, {upsert: true}, function(err, num){
-			console.log('token set');
 			callback();
 		});
 	},
 
-
+	/**
+	 * Sets the code that we need to get to get the access_token
+	 */
 	setRefreshToken: function(refresh_token){
-		console.log(this);
 		this.refresh_token = refresh_token;
 		cache.config.update({type: 'refresh_token'}, {type: 'refresh_token', value: refresh_token}, {upsert: true});
 	},
@@ -95,8 +79,6 @@ module.exports = {
 	 	var obj = this;
 	 	if(!obj.access_token){
 	 		cache.config.findOne({type:'access_token'}, function(err, key){
-	 			console.log('okay weve got a key');
-	 			console.log(key);
 	 			if(!key || !key.value){
 	 				obj.requestAccessToken(true, callback);
 	 			}else{
@@ -109,6 +91,9 @@ module.exports = {
 	 	}
 	},
 
+	/**
+	 * Requests a new access token from BitBucket by providing the refresh_token
+	 */
 	refreshAccessToken: function(callback){
 
 		var obj = this;
@@ -128,7 +113,6 @@ module.exports = {
 			}, function(err, response, body){
 				resp = JSON.parse(body);
 				// TODO: Store the time in which this will expire, and then grab a new one before requesting.
-				console.log(resp);
 				obj.setAccessToken(resp.access_token, callback);
 			});
 		});
@@ -171,12 +155,9 @@ module.exports = {
 	 */
 	getRepos: function(callback){
 		this.doAuthenticatedRequest('repositories?role=contributor', {}, function(err, repos){
-			//cache.set('repos', repos, function(){
 			if(!repos.values) callback(err, repos);
 			repos.values.forEach(function(e, i){
 				cache.repo.update({'uuid':e.uuid}, e, {upsert: true}, function(err, num){
-					console.log('STORED IN CACHE');
-					console.log(num);
 					callback(err, repos);
 				});
 
@@ -193,27 +174,39 @@ module.exports = {
 	 * to include the full repository name
 	 */
 	 getIssues: function(repo, callback){
-	 	//console.log(repo);
 	 	this.doAuthenticatedRequest('repositories/'+repo+'/issues', {}, function(err, issues){
-	 		//console.log(issues);
+	 		
 	 		if(!issues.values || !issues.values.length) return callback(err, issues);
+	 		var promises = [];
 	 		issues.repo_slug = repo;
-	 		console.log(issues);
 	 		issues.repo_id = issues.values[0].repository.uuid;
 	 		issues.values.forEach(function(e, i){
-	 			e.updated_html = timeAgo.html(e.updated_on);
-	 			e.repo_id = e.repository.uuid;
-	 			//issues.values[i].updated_html = timeAgo.html(e.updated_on);
-	 			cache.issues.update({repo_id: repo, id: e.id}, e, {upsert: true}, function(err, num){
-	 				callback(err, issues);
-	 			})
+
+	 			promises.push(new Promise(function(resolve, reject){
+		 			e.updated_html = timeAgo.html(e.updated_on);
+		 			e.cached_on = new Date();
+		 			e.repo_id = e.repository.uuid;
+		 			e.issue_id = e.repo_id+""+parseInt(e.id);
+		 			console.log(e);
+		 			cache.issues.update({issue_id: e.issue_id}, e, {upsert: true}, function(err, num){
+		 				if(err) reject();
+		 				resolve();
+		 			});
+		 		}));
+
 	 		});
+
+	 		Promise.all(promises).then(values => {
+	 			//console.log(issues);
+	 			callback(null, issues);
+	 		});
+
 	 	});
  	},
 
 
 	/**
-	 * Returns an object of an individual issue, using the provided repo and issue ID
+	 * Returns an object of an individual issue containing both attachments and comments.
 	 */
 	getIssueDetail: function(repo_slug, repo_id, issue_id, callback){
 
@@ -221,7 +214,7 @@ module.exports = {
 		var getComments = this.getIssueComments(repo_slug, issue_id);
 
 		Promise.all([getAttachments, getComments]).then(values => {
-			cache.issue.update({repo_id: repo_id, id: parseInt(issue_id)}, {attachments: values[0].values, comments: values[1].values}, {upsert: true}, function(err, num, issue){
+			cache.issue.update({repo_id: repo_id, id: parseInt(issue_id)}, {attachments: values[0].values, comments: values[1].values, cached_on: new Date()}, {upsert: true}, function(err, num, issue){
 				callback(null, issue);
 			});
 		});

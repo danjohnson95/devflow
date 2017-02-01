@@ -16,6 +16,10 @@ var repoSidebar = document.getElementById('repo-sidebar'),
 	issueComments = document.getElementById('issue-comments'),
 	issueCommentTemplate = issueComments.querySelector('.template');
 
+//const nedb = require('nedb');
+
+//console.log(nedb);
+
 var newIssueModal = require('./browser/new-issue-modal.js'),
 	repoList = require('./browser/repo-list.js'),
 	issues = require('./browser/issues.js');
@@ -34,6 +38,19 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 }).on('issues', (event, message) => {
 
 	issues.insertIssues(message.values);
+
+	// Now, is the cache up to date?
+	if(message.values.length){
+		var cacheDate = new Date(message.values[0].cached_on).getTime();
+		console.log(cacheDate);
+		console.log(new Date().getTime());
+		if(new Date().getTime() - 3000 > cacheDate){
+			ipcRenderer.send('issues-from-cache', {repo_slug: message.values[0].repository.full_name});
+		}
+	}
+
+	console.log(message.values[0].cached_on);
+	//if(message.values && message[0].cached_on)
 
 }).on('issue', (event, message) => {
 

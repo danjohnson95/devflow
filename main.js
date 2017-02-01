@@ -12,8 +12,6 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 
-const storage = require('electron-json-storage')
-
 const BitBucket = require('./bitbucket.js');
 
 var access_token = null;
@@ -36,7 +34,6 @@ function createWindow () {
   })
 
   //Do we have the access token in the cache?
-  //storage.get('config', function(err, config){
   cache.config.find({type: 'access_token'}, function(err, token){
     if(!token.length){
 
@@ -129,34 +126,61 @@ ipcMain.on('show-repos', (event, arg) => {
     }
 
   });
-})
+});
 
-ipcMain.on('show-issues', (event, arg) => {
-
-  cache.issues.find({repo_id: arg.repo_id}, function(err, issues){
-    if(issues.length){
-      issues = {values: issues, repo_id: arg};
-      mainWindow.webContents.send('issues', issues);
-    }
-
-    if(!issues.length || new Date.now() + 300000 > cacheDate){
-      console.log('start loading');
+function getIssuesFromCache(repo_slug, callback){
+    // var cacheDate = new Date(issues && issues.length ? issues[0].cached_on : 0);
+    // if(!issues.length || new Date.now() + 300000 > cacheDate){
+    //   console.log('start loading');
+      
       mainWindow.webContents.send('loading', {
         box: 1,
         state: 1
       });
 
-      BitBucket.getIssues(arg.repo_slug, function(err, issues){
-        mainWindow.webContents.send('issues', issues);
+      BitBucket.getIssues(repo_slug, function(err, issues){
 
         mainWindow.webContents.send('loading', {
           box: 1,
           state: 0
         });
 
+        callback(err, issues);
+
+      });
+
+    //}
+  //});
+}
+
+ipcMain.on('show-issues', (event, arg) => {
+
+  cache.issues.find({repo_id: arg.repo_id}, function(err, issues){
+    if(issues.length){
+      issues = {values: issues, repo_id: arg};
+      // Problem:
+      // When we send data from the cache, it's slow as fuck.
+      // Solution:
+      // Get cached data from the browser end, then work out if it's out of date.
+      // If it is, then request the latest from Node.
+      console.log(issues.values.length);
+      mainWindow.webContents.send('issues', issues);
+    }else{
+      getIssuesFromCache(arg.repo_slug, function(err, issues){
+        mainWindow.webContents.send('issues', issues);
       });
     }
+
   });
+
+});
+
+ipcMain.on('issues-from-cache', (event, arg) => {
+
+  getIssuesFromCache(arg.repo_slug, function(err, issues){
+    mainWindow.webContents.send('issues', issues);
+  });
+
 });
 
 ipcMain.on('show-issue', (event, arg) => {
@@ -173,7 +197,7 @@ ipcMain.on('show-issue', (event, arg) => {
     }
 
     // Refresh the cache if it's older than 5 minutes.
-    var cacheDate = new Date(issue.cached_on);
+    var cacheDate = new Date(issue.cached_on || 0);
     if(!issue || new Date.now() + 300000 > cacheDate){ 
 
       mainWindow.webContents.send('loading', {

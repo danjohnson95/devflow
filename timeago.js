@@ -29,7 +29,6 @@ module.exports = {
     },
 
     zeroPad: function(size, digit){
-        console.log(digit.length);
         if((digit.toString()).length < size) return "0"+digit;
         return digit;
     },
