@@ -54,3 +54,32 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 			break;
 	}
 });
+
+var newComment = document.getElementById('issue-new-comment');
+
+newComment.addEventListener('click', function(){
+	if(!this.classList.contains('open')){
+		this.classList.add('open');
+		this.querySelector('textarea').focus();
+	}
+});
+
+function hasParent(e, id){
+
+	if(e.id == id){
+		return true;
+	}else{
+		if(e.parentNode){
+			return hasParent(e.parentNode, id);
+		}else{
+			return false;
+		}
+	}
+
+}
+
+document.addEventListener('click', function(e, elm){
+	if(!hasParent(e.target, 'issue-new-comment')){
+		if(newComment.classList.contains('open')) newComment.classList.remove('open');
+	}
+});

@@ -200,7 +200,6 @@ body{
 	left: 225px;
 	width: 339px;
 	z-index: 1;
-	box-shadow: 0 1px 1px rgba(0,0,0,0.05);
 }
 #issue-list #search-box input{
 	border: 0;
@@ -483,14 +482,66 @@ body{
 	height: 50px;
 	right: 0;
 	border-top: 1px solid rgba(0,0,0,0.1);
-	box-shadow: 0 -1px 1px rgba(0,0,0,0.05);
+	transition: 0.2s height;
+	overflow: hidden;
+}
+
+#issue-new-comment .head{
+	color: rgba(0,0,0,0.5);
+	padding: 17px 2em;
+	font-size: 14px;
+	transform: translate3d(0,0,0);
+	transition: 0.3s transform;
+	position: absolute;
+}
+
+#issue-new-comment .head img{
+	width: 20px;
+	height: 20px;
+	border-radius: 5px;
+	margin-right: 5px;
+	vertical-align: middle;
+	position: relative;
+	top: -1px;
+}
+
+#issue-new-comment .expanded{
+	display: none;
+}
+
+#issue-new-comment.open{
+	height: 200px;
+}
+
+#issue-new-comment.open .head{
+	transform: translate3d(0, -55px, 0);
+}
+
+#issue-new-comment.open .expanded{
+	display: block;
+}
+
+#issue-new-comment .expanded textarea{
+	border: 0;
+	font-size: 13px;
+	padding: 1em 2em 0;
+	height: 140px;
+	box-sizing: border-box;
+	width: 100%;
+	outline: 0;
+	resize: none;
+}
+
+#issue-new-comment .expanded .comment-foot{
+	border-top: 1px solid rgba(0,0,0,0.05);
+	padding: 1em 0;
+	margin: 1em 2em 0 2em;
 }
 
 #issue-contents #issue-contents-head{
 	background-color: #fff;
 	border-bottom: 1px solid rgba(0,0,0,0.05);
-	box-shadow: 0 1px 1px rgba(0,0,0,0.05);
-	padding: 1em 2.5em;
+	padding: 1em 2em;
 }
 
 #issue-contents #issue-contents-head .vote-and-watch{
@@ -529,8 +580,12 @@ body{
 	background-color: #fff;
 	border: 1px solid rgba(0,0,0,0.1);
 	border-radius: 5px;
-	padding: 1.5em;
-	margin: 2em 2.5em;
+	padding: 1em 1em .5em 1em;
+	margin: 2em;
+}
+
+#issue-contents .issue-comment-box .attachments{
+	margin-bottom: .5em;
 }
 
 #issue-contents .issue-comment-box .attachments.hide{
@@ -555,9 +610,29 @@ body{
 	border-color: #cce4fd;
 }
 
+#issue-contents .issue-comment-box p{
+	line-height: 1.5;
+}
+
+#issue-contents .issue-comment-box p a{
+	color: #0077f5;
+	font-weight: 500;
+	text-decoration: none;
+}
+
+#issue-contents .issue-comment-box p pre, #issue-contents .issue-comment-box p code{
+	background-color: rgba(0,0,0,0.05);
+	font-size: 11px;
+	padding: 2px 4px;
+	border-radius: 5px;
+	color: rgba(0,0,0,0.6);
+	font-style: normal;
+} 
+
 #issue-contents .issue-comment-box .issue-user{
 	padding: 0 0 1em 0;
 	border-bottom: 1px solid rgba(0,0,0,0.05);
+	font-size: 12px;
 }
 
 #issue-contents .issue-comment-box .issue-user img{
@@ -565,6 +640,8 @@ body{
 	border-radius: 3px;
 	overflow: hidden;
 	margin-right: 3px;
+	position: relative;
+	top: -1px;
 }
 
 #issue-contents .issue-comment-box .issue-user .user-name{
@@ -573,6 +650,6 @@ body{
 }
 
 #issue-contents .issue-comment-box .issue-user .posted-time{
-	color: rgba(0,0,0,0.6);
+	color: rgba(0,0,0,0.5);
 	vertical-align: middle;
 }
