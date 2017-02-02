@@ -91,12 +91,18 @@ function hasParent(e, id){
 
 }
 
+function closeCommentBox(){
+	if(newComment.classList.contains('open')) newComment.classList.remove('open');
+	setTimeout(function(){
+		issues.calculateContentScrollHeight();
+		newCommentContents.value = "";
+	}, 300);
+}
+
+
 document.addEventListener('click', function(e){
 	if(!hasParent(e.target, 'issue-new-comment')){
-		if(newComment.classList.contains('open')) newComment.classList.remove('open');
-		setTimeout(function(){
-			issues.calculateContentScrollHeight();
-		}, 300);
+		closeCommentBox();
 	}
 });
 
@@ -114,6 +120,8 @@ newCommentSubmit.addEventListener('click', function(e){
 ipcRenderer.on('new-comment-created', function(e, message){
 	//message = issues.oldCommentToNew(message);
 	issues.appendComment(message);
+	closeCommentBox();
+	issues.scrollToBottomOfComments();
 });
 
 

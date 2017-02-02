@@ -117,6 +117,13 @@ var obj = {
 		issueContents.querySelector('#issue-contents-scroll').style.height = "calc(100% - "+totalHeight+"px)";
 	},
 
+	scrollToBottomOfComments: function(){
+
+		var height = issueContents.querySelector('#issue-contents-scroll').scrollHeight;
+		issueContents.querySelector('#issue-contents-scroll').scrollTop = height;
+
+	},
+
 	showBareDetails: function(elem){
 		
 		obj.clearComments();
