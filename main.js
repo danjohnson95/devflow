@@ -12,8 +12,6 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 
-const storage = require('electron-json-storage')
-
 const BitBucket = require('./bitbucket.js');
 
 var access_token = null;
@@ -30,13 +28,12 @@ let mainWindow
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1100, 
-    height: 700, 
+    width: 1100,
+    height: 700,
     titleBarStyle: "hidden-inset"
   })
 
   //Do we have the access token in the cache?
-  //storage.get('config', function(err, config){
   cache.config.find({type: 'access_token'}, function(err, token){
     if(!token.length){
 
@@ -60,7 +57,7 @@ function createWindow () {
       });
 
     }else{
-      launchApp();  
+      launchApp();
     }
   });
 
@@ -71,14 +68,6 @@ function createWindow () {
       protocol: 'file:',
       slashes: true
     }));
-
-    //mainWindow.webContents.send('loading-start', {box: 0});
-
-    // BitBucket.getRepos(function(err, repos){
-    //   console.log('Got from network');
-    //   mainWindow.webContents.send('repos', repos);
-    //   mainWindow.webContents.send('loading-stop', {box: 0});
-    // });
 
   }
 
@@ -112,7 +101,7 @@ ipcMain.on('new-issue', (event, arg) => {
 });
 
 ipcMain.on('show-repos', (event, arg) => {
-  // First, get cached repos. Then we'll connect afterward.
+  // If we've got any cached, get them. Otherwise request from API.
   cache.repo.find({}, function(err, repos){
     if(repos.length){
 
@@ -122,14 +111,33 @@ ipcMain.on('show-repos', (event, arg) => {
     }else{
 
       BitBucket.getRepos(function(err, repos){
-        console.log('Got from network');
         mainWindow.webContents.send('repos', repos);
       });
-    
+
     }
 
   });
-})
+});
+
+function RefreshIssueCache(repo_slug, callback){
+
+    mainWindow.webContents.send('loading', {
+      box: 1,
+      state: 1
+    });
+
+    BitBucket.getIssues(repo_slug, function(err, issues){
+
+      mainWindow.webContents.send('loading', {
+        box: 1,
+        state: 0
+      });
+
+      callback(err, issues);
+
+    });
+
+}
 
 ipcMain.on('show-issues', (event, arg) => {
 
@@ -138,11 +146,21 @@ ipcMain.on('show-issues', (event, arg) => {
       issues = {values: issues, repo_id: arg};
       mainWindow.webContents.send('issues', issues);
     }else{
-      BitBucket.getIssues(arg.repo_slug, function(err, issues){
+      RefreshIssueCache(arg.repo_slug, function(err, issues){
         mainWindow.webContents.send('issues', issues);
       });
     }
+
   });
+
+});
+
+ipcMain.on('refresh-issue-cache', (event, arg) => {
+
+  RefreshIssueCache(arg.repo_slug, function(err, issues){
+    mainWindow.webContents.send('issues', issues);
+  });
+
 });
 
 ipcMain.on('show-issue', (event, arg) => {
@@ -150,29 +168,36 @@ ipcMain.on('show-issue', (event, arg) => {
   // Before this used to show the issue contents, but we already have it now!
   // So here we're just gonna be pulling out the attachments and comments.
 
-  cache.issue.findOne({repo_id: arg.repo_id, id: parseInt(arg.issue_id)}, function(err, issue){
+  cache.issue.findOne({repo_id: arg.repo_id, issue_id: parseInt(arg.issue_id)}, function(err, issue){
 
-    console.log(issue);
-    
+	var cacheDate = 0;
+  var now = new Date;
+
     if(issue){
       mainWindow.webContents.send('issue', issue);
-    }else{
-      BitBucket.getIssueDetail(arg.repo_slug, arg.repo_id, arg.issue_id, function(err, issue){
-        mainWindow.webContents.send('issue', issue);
+	   cacheDate = new Date(issue.cached_on || 0);
+    }
+
+    // Refresh the cache if it's older than 5 minutes.
+    if(!issue || now.getTime() - 300000 > cacheDate){
+
+      mainWindow.webContents.send('loading', {
+        box: 2,
+        state: 1
       });
 
-      // BitBucket.getIssue(arg.repo_slug, arg.issue_id, function(err, issue){
-      //   mainWindow.webContents.send('issue', issue);
-      // });
+      BitBucket.getIssueDetail(arg.repo_slug, arg.repo_id, arg.issue_id, function(err, issue){
+        mainWindow.webContents.send('issue', issue);
 
-      // BitBucket.getIssueAttachments(arg.repo_slug, arg.issue_id, function(err, attachments){
-      //   mainWindow.webContents.send('attachments', attachments);
-      // });
+        mainWindow.webContents.send('loading', {
+          box: 2,
+          state: 0
+        });
 
-      // BitBucket.getIssueComments(arg.repo_slug, arg.issue_id, function(err, comments){
-      //   mainWindow.webContents.send('comments', comments);
-      // });
+      });
+
     }
+
   });
 });
 

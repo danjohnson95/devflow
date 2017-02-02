@@ -9,6 +9,8 @@ const {ipcRenderer} = require('electron'),
 	issueContentsPlaceholder = issueContents.querySelector('.placeholder'),
 	contentsVoteWatch = issueContents.querySelector('#issue-contents-details .vote-and-watch'),
 	contentsDescription = issueContents.querySelector('#issue-description'),
+	issueLoading = issueListOuter.querySelector('.loading'),
+	issueContentsLoading = issueContents.querySelector('.loading'),
 	timeAgo = require('../timeago.js');
 	
 
@@ -23,6 +25,22 @@ var obj = {
 
 	requestOneIssue: function(issue){
 		ipcRenderer.send('show-issue', issue);
+	},
+
+	loading: function(state){
+		if(state && !issueLoading.classList.contains('show')){
+			issueLoading.classList.add('show');
+		}else if(!state && issueLoading.classList.contains('show')){
+			issueLoading.classList.remove('show');
+		}
+	},
+
+	loadingContents: function(state){
+		if(state && !issueContentsLoading.classList.contains('show')){
+			issueContentsLoading.classList.add('show');
+		}else if(!state && issueContentsLoading.classList.contains('show')){
+			issueContentsLoading.classList.remove('show');
+		}
 	},
 
 	clearList: function(){
@@ -174,6 +192,7 @@ var obj = {
 
 	insertComments: function(comments){
 		//issueComments.innerHTML = "";
+		this.clearComments();
 		if(comments.length < 1) return;
 		comments.forEach(function(e, i){
 			if(e.content.html == "") return;

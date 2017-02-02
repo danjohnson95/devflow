@@ -258,7 +258,55 @@ body{
 	background-color: #6cc644;
 }*/
 
+.loading{
+	position: fixed;
+	bottom: 1em;
+	background-color: rgba(0,0,0,0.6);
+	color: #fff;
+	z-index: 2;
+	color: #fff;
+	padding: .4em 1em;
+	border-radius: 3px;
+	margin-left: 1em;
+	font-weight: 500;
+	line-height: 2;
+	transform: translate3d(0, 100px, 0);
+	transition: 0.3s transform;
+}
 
+.loading.show{
+	transform: translate3d(0,0,0) !important;
+}
+
+#issue-list .loading{
+	width: 285px;
+}
+
+#issue-contents .loading{
+	left: 565px;
+	right: 15px;
+	bottom: 65px;
+	transform: translate3d(0, 110px, 0);
+}
+
+.loading div.spin{
+	width: 15px;
+	height: 15px;
+	display: inline-block;
+	border: 2px solid transparent;
+	border-left: 2px solid #fff;
+	border-top: 2px solid #fff;
+	border-radius: 50%;
+	animation: spin 500ms infinite linear;
+	margin-right: 10px;
+	position: relative;
+	top: 4px;
+}
+
+@keyframes spin{
+	from {transform:rotate(0deg);}
+	to {transform:rotate(360deg);}
+}
 
 #issue-list ul li.issue-box .issue-status span{
 	display: inline-block;
