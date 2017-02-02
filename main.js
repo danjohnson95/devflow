@@ -168,17 +168,24 @@ ipcMain.on('show-issue', (event, arg) => {
   // Before this used to show the issue contents, but we already have it now!
   // So here we're just gonna be pulling out the attachments and comments.
 
-  cache.issue.findOne({repo_id: arg.repo_id, id: parseInt(arg.issue_id)}, function(err, issue){
+  console.log(arg);
+
+  cache.issue.findOne({repo_id: arg.repo_id, issue_id: parseInt(arg.issue_id)}, function(err, issue){
 
 	var cacheDate = 0;
+  var now = new Date;
+
+  console.log(issue);
 
     if(issue){
       mainWindow.webContents.send('issue', issue);
-	  cacheDate = new Date(issue.cached_on || 0);
+	   cacheDate = new Date(issue.cached_on || 0);
     }
 
     // Refresh the cache if it's older than 5 minutes.
-    if(!issue || new Date.now() + 300000 > cacheDate){
+    if(!issue || now.getTime() - 300000 > cacheDate){
+
+      console.log(cacheDate);
 
       mainWindow.webContents.send('loading', {
         box: 2,
@@ -197,17 +204,6 @@ ipcMain.on('show-issue', (event, arg) => {
 
     }
 
-      // BitBucket.getIssue(arg.repo_slug, arg.issue_id, function(err, issue){
-      //   mainWindow.webContents.send('issue', issue);
-      // });
-
-      // BitBucket.getIssueAttachments(arg.repo_slug, arg.issue_id, function(err, attachments){
-      //   mainWindow.webContents.send('attachments', attachments);
-      // });
-
-      // BitBucket.getIssueComments(arg.repo_slug, arg.issue_id, function(err, comments){
-      //   mainWindow.webContents.send('comments', comments);
-      // });
   });
 });
 

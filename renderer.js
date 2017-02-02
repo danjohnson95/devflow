@@ -7,15 +7,6 @@
 
 const {ipcRenderer} = require('electron')
 
-var repoSidebar = document.getElementById('repo-sidebar'),
-	repoButtonTemplate = repoSidebar.querySelector('.template'),
-	issueListOuter = document.getElementById('issue-list'),
-	issueList = document.getElementById('issue-list-inner'),
-	issueListTemplate = issueList.querySelector('.template'),
-	issueContents = document.getElementById('issue-contents'),
-	issueComments = document.getElementById('issue-comments'),
-	issueCommentTemplate = issueComments.querySelector('.template');
-
 var newIssueModal = require('./browser/new-issue-modal.js'),
 	repoList = require('./browser/repo-list.js'),
 	issues = require('./browser/issues.js');
@@ -39,9 +30,6 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 		}
 	}
 
-	console.log(message.values[0].cached_on);
-	//if(message.values && message[0].cached_on)
-
 }).on('issue', (event, message) => {
 
 	issues.insertAttachments(message.attachments);
@@ -50,12 +38,10 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 }).on('new-issue-created', (event, message) => {
 	newIssueModal.closeAndClear();
 	// Are we on the same repo as the one just inserted?
-	console.log(repoList.getCurrentRepo());
 	if(repoList.getCurrentRepo() == message.repository.full_name){
 		issues.prependIssue(message);
 	}
 }).on('loading', (event, message) => {
-	console.log(message);
 	switch(message.box){
 		case 0:
 			break;
@@ -65,4 +51,4 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 		case 2:
 			break;
 	}
-})
+});

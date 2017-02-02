@@ -196,8 +196,8 @@ module.exports = {
 			issue.updated_html = timeAgo.html(issue.updated_on);
 			issue.cached_on = new Date();
 			issue.repo_id = issue.repository.uuid;
-			issue.issue_id = issue.repo_id+""+parseInt(issue.id);
-			cache.issues.update({issue_id: issue.issue_id}, issue, {upsert: true}, function(err, num){
+			issue.issue_id = parseInt(issue.id);
+			cache.issues.update({issue_id: issue.issue_id, repo_id: issue.repo_id}, issue, {upsert: true}, function(err, num){
 				if(err) reject(err);
 				resolve(issue);
 			});
@@ -214,7 +214,17 @@ module.exports = {
 		var getComments = this.getIssueComments(repo_slug, issue_id);
 
 		Promise.all([getAttachments, getComments]).then(values => {
-			cache.issue.update({repo_id: repo_id, id: parseInt(issue_id)}, {attachments: values[0].values, comments: values[1].values, cached_on: new Date()}, {upsert: true}, function(err, num, issue){
+			var obj = {
+				attachments: values[0].values,
+				comments: values[1].values,
+				cached_on: new Date(),
+				issue_id: parseInt(issue_id),
+				repo_id: repo_id
+			};
+			console.log('where repo_id='+repo_id+' and issue_id='+parseInt(issue_id));
+			cache.issue.update({repo_id: repo_id, issue_id: parseInt(issue_id)}, obj, {upsert: true}, function(err, num, issue){
+				console.log(issue);
+				if(err) throw err;
 				callback(null, issue);
 			});
 		});
