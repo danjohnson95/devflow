@@ -103,6 +103,14 @@ var obj = {
 		});
 	},
 
+	calculateContentScrollHeight: function(){
+
+		var topHeight = issueContents.querySelector('#issue-contents-head').offsetHeight;
+		var commentHeight = issueContents.querySelector('#issue-new-comment').offsetHeight;
+		var totalHeight = topHeight + commentHeight;
+		issueContents.querySelector('#issue-contents-scroll').style.height = "calc(100% - "+totalHeight+"px)";
+	},
+
 	showBareDetails: function(elem){
 		
 		obj.clearComments();
@@ -129,6 +137,8 @@ var obj = {
 		if(elem.dataset.assignee != "nobody"){
 			issueContents.querySelector('#issue-assignees span').classList.add('user');
 		}
+
+		obj.calculateContentScrollHeight();
 
 	},
 
