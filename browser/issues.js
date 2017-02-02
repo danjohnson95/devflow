@@ -192,6 +192,7 @@ var obj = {
 
 	insertComments: function(comments){
 		//issueComments.innerHTML = "";
+		this.clearComments();
 		if(comments.length < 1) return;
 		comments.forEach(function(e, i){
 			if(e.content.html == "") return;
