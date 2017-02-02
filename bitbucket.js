@@ -8,6 +8,7 @@ module.exports = {
 	refresh_token: null,
 	access_token: null,
 	hostname: 'https://api.bitbucket.org/2.0/',
+	old_hostname: 'https://api.bitbucket.org/1.0/',
 	refresh_error: "Access token expired. Use your refresh token to obtain a new access token.",
 
 
@@ -28,10 +29,16 @@ module.exports = {
 			opt = {};
 		opt.method = options.method || "get";
 		opt.body = options.body || null;
+		opt.version = options.version || 2;
 
+		if(opt.version == 1){
+			var url = obj.old_hostname+endpoint;
+		}else{
+			var url = obj.hostname+endpoint;
+		}
 		this.getAccessToken(function(){
 			request({
-				url: obj.hostname+endpoint,
+				url: url,
 				method: opt.method,
 				json: true,
 				auth: {
@@ -219,7 +226,8 @@ module.exports = {
 				comments: values[1].values,
 				cached_on: new Date(),
 				issue_id: parseInt(issue_id),
-				repo_id: repo_id
+				repo_id: repo_id,
+				repo_slug: repo_slug
 			};
 			console.log('where repo_id='+repo_id+' and issue_id='+parseInt(issue_id));
 			cache.issue.update({repo_id: repo_id, issue_id: parseInt(issue_id)}, obj, {upsert: true}, function(err, num, issue){
@@ -290,6 +298,47 @@ module.exports = {
 			});
 		});
 
+	},
+
+	oldCommentToNew: function(comment){
+		return obj = {
+			created_html: timeAgo.html(comment.utc_created_on),
+			content: {
+				html: comment.content
+			},
+			user: {
+				display_name: comment.author_info.display_name,
+				links: {
+					avatar: {
+						href: comment.author_info.avatar
+					}
+				}
+			}
+		};
+	},
+
+	postNewComment: function(msg, callback){
+		var obj = this;
+		obj.doAuthenticatedRequest('repositories/'+msg.repo+'/issues/'+msg.issue+'/comments', {
+			method: 'post',
+			version: 1,
+			body: {
+				content: msg.content
+			}
+		}, function(err, comment){
+			console.log(err);
+			comment = obj.oldCommentToNew(comment);
+
+			cache.issue.findOne({repo_slug: msg.repo, issue_id: parseInt(msg.issue)}, function(err, issue){
+				issue.comments.push(comment);
+				cache.issue.update({repo_id: issue.repo_id, issue_id: parseInt(msg.issue)}, issue, {upsert: true}, function(err, num, issue){
+					callback(null, comment);
+				});
+			});
+			
+		});
 	}
+
+
 
 }

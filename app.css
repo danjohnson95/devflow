@@ -71,11 +71,11 @@ body{
 	height: 27px;
 }
 
-.modal-footer .submit-new-issue{
+.modal-footer .submit-new-issue, .float-right-btn{
 	float: right;
 }
 
-.modal-footer .submit-new-issue button{
+.modal-footer .submit-new-issue button, .float-right-btn button{
 	background-color: #f3f7fd;
 	border: 1px solid rgba(0,0,0,0.1);
 	border-radius: 3px;
@@ -87,7 +87,7 @@ body{
 	transition: 0.3s color;
 }
 
-.modal-footer .submit-new-issue button.disabled{
+.modal-footer .submit-new-issue button.disabled, .float-right-btn button.disabled{
 	color: rgba(0,0,0,0.3);
 }
 

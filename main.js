@@ -100,6 +100,12 @@ ipcMain.on('new-issue', (event, arg) => {
 
 });
 
+ipcMain.on('new-comment', (event, arg) => {
+  BitBucket.postNewComment(arg, function(err, done){
+    mainWindow.webContents.send('new-comment-created', done);
+  });
+});
+
 ipcMain.on('show-repos', (event, arg) => {
   // If we've got any cached, get them. Otherwise request from API.
   cache.repo.find({}, function(err, repos){

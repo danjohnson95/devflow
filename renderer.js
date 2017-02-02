@@ -55,7 +55,9 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 	}
 });
 
-var newComment = document.getElementById('issue-new-comment');
+var newComment = document.getElementById('issue-new-comment'),
+	newCommentSubmit = newComment.querySelector('#submit-comment'),
+	newCommentContents = newComment.querySelector('textarea');
 
 newComment.addEventListener('click', function(){
 	if(!this.classList.contains('open')){
@@ -66,6 +68,14 @@ newComment.addEventListener('click', function(){
 		}, 300);
 	}
 });
+
+newCommentContents.addEventListener('input', function(){
+	if(this.value != "" && newCommentSubmit.classList.contains('disabled')){
+		newCommentSubmit.classList.remove('disabled');
+	}else if(this.value == "" && !newCommentSubmit.classList.contains('disabled')){
+		newCommentSubmit.classList.add('disabled');
+	}
+})
 
 function hasParent(e, id){
 
@@ -81,7 +91,7 @@ function hasParent(e, id){
 
 }
 
-document.addEventListener('click', function(e, elm){
+document.addEventListener('click', function(e){
 	if(!hasParent(e.target, 'issue-new-comment')){
 		if(newComment.classList.contains('open')) newComment.classList.remove('open');
 		setTimeout(function(){
@@ -89,3 +99,23 @@ document.addEventListener('click', function(e, elm){
 		}, 300);
 	}
 });
+
+newCommentSubmit.addEventListener('click', function(e){
+	if(this.classList.contains('disabled')) return;
+	console.log(repoList.getCurrentRepo());
+	console.log(issues.getCurrentIssue());
+	ipcRenderer.send('new-comment', {
+		repo: repoList.getCurrentRepo(),
+		issue: issues.getCurrentIssue(),
+		content: newCommentContents.value
+	});
+});
+
+ipcRenderer.on('new-comment-created', function(e, message){
+	//message = issues.oldCommentToNew(message);
+	issues.appendComment(message);
+});
+
+
+
+
