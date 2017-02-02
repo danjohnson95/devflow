@@ -28,8 +28,8 @@ let mainWindow
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1100, 
-    height: 700, 
+    width: 1100,
+    height: 700,
     titleBarStyle: "hidden-inset"
   })
 
@@ -57,7 +57,7 @@ function createWindow () {
       });
 
     }else{
-      launchApp();  
+      launchApp();
     }
   });
 
@@ -122,7 +122,7 @@ ipcMain.on('show-repos', (event, arg) => {
         console.log('Got from network');
         mainWindow.webContents.send('repos', repos);
       });
-    
+
     }
 
   });
@@ -132,7 +132,7 @@ function getIssuesFromCache(repo_slug, callback){
     // var cacheDate = new Date(issues && issues.length ? issues[0].cached_on : 0);
     // if(!issues.length || new Date.now() + 300000 > cacheDate){
     //   console.log('start loading');
-      
+
       mainWindow.webContents.send('loading', {
         box: 1,
         state: 1
@@ -156,6 +156,7 @@ function getIssuesFromCache(repo_slug, callback){
 ipcMain.on('show-issues', (event, arg) => {
 
   cache.issues.find({repo_id: arg.repo_id}, function(err, issues){
+	  console.log('have we got any cached?');
     if(issues.length){
       issues = {values: issues, repo_id: arg};
       // Problem:
@@ -190,15 +191,15 @@ ipcMain.on('show-issue', (event, arg) => {
 
   cache.issue.findOne({repo_id: arg.repo_id, id: parseInt(arg.issue_id)}, function(err, issue){
 
-    console.log(issue);
-    
+	var cacheDate = 0;
+
     if(issue){
       mainWindow.webContents.send('issue', issue);
+	  cacheDate = new Date(issue.cached_on || 0);
     }
 
     // Refresh the cache if it's older than 5 minutes.
-    var cacheDate = new Date(issue.cached_on || 0);
-    if(!issue || new Date.now() + 300000 > cacheDate){ 
+    if(!issue || new Date.now() + 300000 > cacheDate){
 
       mainWindow.webContents.send('loading', {
         box: 2,

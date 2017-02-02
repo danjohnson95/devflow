@@ -160,7 +160,6 @@ module.exports = {
 				cache.repo.update({'uuid':e.uuid}, e, {upsert: true}, function(err, num){
 					callback(err, repos);
 				});
-
 			});
 		});
 	},
@@ -174,35 +173,36 @@ module.exports = {
 	 * to include the full repository name
 	 */
 	 getIssues: function(repo, callback){
-	 	this.doAuthenticatedRequest('repositories/'+repo+'/issues', {}, function(err, issues){
-	 		
+		 var obj = this;
+	 	obj.doAuthenticatedRequest('repositories/'+repo+'/issues', {}, function(err, issues){
+
 	 		if(!issues.values || !issues.values.length) return callback(err, issues);
 	 		var promises = [];
 	 		issues.repo_slug = repo;
 	 		issues.repo_id = issues.values[0].repository.uuid;
 	 		issues.values.forEach(function(e, i){
-
-	 			promises.push(new Promise(function(resolve, reject){
-		 			e.updated_html = timeAgo.html(e.updated_on);
-		 			e.cached_on = new Date();
-		 			e.repo_id = e.repository.uuid;
-		 			e.issue_id = e.repo_id+""+parseInt(e.id);
-		 			console.log(e);
-		 			cache.issues.update({issue_id: e.issue_id}, e, {upsert: true}, function(err, num){
-		 				if(err) reject();
-		 				resolve();
-		 			});
-		 		}));
-
+				promises.push(obj.updateIssueCache(e));
 	 		});
 
 	 		Promise.all(promises).then(values => {
-	 			//console.log(issues);
 	 			callback(null, issues);
 	 		});
 
 	 	});
  	},
+
+	updateIssueCache: function(issue){
+		return new Promise(function(resolve, reject){
+			issue.updated_html = timeAgo.html(issue.updated_on);
+			issue.cached_on = new Date();
+			issue.repo_id = issue.repository.uuid;
+			issue.issue_id = issue.repo_id+""+parseInt(issue.id);
+			cache.issues.update({issue_id: issue.issue_id}, issue, {upsert: true}, function(err, num){
+				if(err) reject(err);
+				resolve(issue);
+			});
+		});
+	},
 
 
 	/**
@@ -243,7 +243,7 @@ module.exports = {
 		var obj = this;
 		return new Promise(function(resolve, reject){
 			obj.doAuthenticatedRequest('repositories/'+repo_slug+'/issues/'+issue_id+'/comments', {}, function(err, comments){
-			
+
 				if(err) reject(err);
 				if(comments.values.length > 0){
 					comments.values.forEach(function(e, i){
