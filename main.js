@@ -168,14 +168,10 @@ ipcMain.on('show-issue', (event, arg) => {
   // Before this used to show the issue contents, but we already have it now!
   // So here we're just gonna be pulling out the attachments and comments.
 
-  console.log(arg);
-
   cache.issue.findOne({repo_id: arg.repo_id, issue_id: parseInt(arg.issue_id)}, function(err, issue){
 
 	var cacheDate = 0;
   var now = new Date;
-
-  console.log(issue);
 
     if(issue){
       mainWindow.webContents.send('issue', issue);
@@ -184,8 +180,6 @@ ipcMain.on('show-issue', (event, arg) => {
 
     // Refresh the cache if it's older than 5 minutes.
     if(!issue || now.getTime() - 300000 > cacheDate){
-
-      console.log(cacheDate);
 
       mainWindow.webContents.send('loading', {
         box: 2,

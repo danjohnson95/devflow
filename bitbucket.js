@@ -223,9 +223,8 @@ module.exports = {
 			};
 			console.log('where repo_id='+repo_id+' and issue_id='+parseInt(issue_id));
 			cache.issue.update({repo_id: repo_id, issue_id: parseInt(issue_id)}, obj, {upsert: true}, function(err, num, issue){
-				console.log(issue);
 				if(err) throw err;
-				callback(null, issue);
+				callback(null, obj);
 			});
 		});
 

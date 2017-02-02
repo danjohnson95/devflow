@@ -10,6 +10,7 @@ const {ipcRenderer} = require('electron'),
 	contentsVoteWatch = issueContents.querySelector('#issue-contents-details .vote-and-watch'),
 	contentsDescription = issueContents.querySelector('#issue-description'),
 	issueLoading = issueListOuter.querySelector('.loading'),
+	issueContentsLoading = issueContents.querySelector('.loading'),
 	timeAgo = require('../timeago.js');
 	
 
@@ -31,6 +32,14 @@ var obj = {
 			issueLoading.classList.add('show');
 		}else if(!state && issueLoading.classList.contains('show')){
 			issueLoading.classList.remove('show');
+		}
+	},
+
+	loadingContents: function(state){
+		if(state && !issueContentsLoading.classList.contains('show')){
+			issueContentsLoading.classList.add('show');
+		}else if(!state && issueContentsLoading.classList.contains('show')){
+			issueContentsLoading.classList.remove('show');
 		}
 	},
 

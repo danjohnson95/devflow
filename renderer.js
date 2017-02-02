@@ -42,6 +42,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 		issues.prependIssue(message);
 	}
 }).on('loading', (event, message) => {
+	console.log('loading');
 	switch(message.box){
 		case 0:
 			break;
@@ -49,6 +50,7 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 			issues.loading(message.state);
 			break;
 		case 2:
+			issues.loadingContents(message.state);
 			break;
 	}
 });

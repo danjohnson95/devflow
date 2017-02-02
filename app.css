@@ -275,11 +275,18 @@ body{
 }
 
 .loading.show{
-	transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0) !important;
 }
 
 #issue-list .loading{
 	width: 285px;
+}
+
+#issue-contents .loading{
+	left: 565px;
+	right: 15px;
+	bottom: 65px;
+	transform: translate3d(0, 110px, 0);
 }
 
 .loading div.spin{
