@@ -69,14 +69,6 @@ function createWindow () {
       slashes: true
     }));
 
-    //mainWindow.webContents.send('loading-start', {box: 0});
-
-    // BitBucket.getRepos(function(err, repos){
-    //   console.log('Got from network');
-    //   mainWindow.webContents.send('repos', repos);
-    //   mainWindow.webContents.send('loading-stop', {box: 0});
-    // });
-
   }
 
 
@@ -109,7 +101,7 @@ ipcMain.on('new-issue', (event, arg) => {
 });
 
 ipcMain.on('show-repos', (event, arg) => {
-  // First, get cached repos. Then we'll connect afterward.
+  // If we've got any cached, get them. Otherwise request from API.
   cache.repo.find({}, function(err, repos){
     if(repos.length){
 
@@ -119,7 +111,6 @@ ipcMain.on('show-repos', (event, arg) => {
     }else{
 
       BitBucket.getRepos(function(err, repos){
-        console.log('Got from network');
         mainWindow.webContents.send('repos', repos);
       });
 
@@ -128,46 +119,34 @@ ipcMain.on('show-repos', (event, arg) => {
   });
 });
 
-function getIssuesFromCache(repo_slug, callback){
-    // var cacheDate = new Date(issues && issues.length ? issues[0].cached_on : 0);
-    // if(!issues.length || new Date.now() + 300000 > cacheDate){
-    //   console.log('start loading');
+function RefreshIssueCache(repo_slug, callback){
+
+    mainWindow.webContents.send('loading', {
+      box: 1,
+      state: 1
+    });
+
+    BitBucket.getIssues(repo_slug, function(err, issues){
 
       mainWindow.webContents.send('loading', {
         box: 1,
-        state: 1
+        state: 0
       });
 
-      BitBucket.getIssues(repo_slug, function(err, issues){
+      callback(err, issues);
 
-        mainWindow.webContents.send('loading', {
-          box: 1,
-          state: 0
-        });
+    });
 
-        callback(err, issues);
-
-      });
-
-    //}
-  //});
 }
 
 ipcMain.on('show-issues', (event, arg) => {
 
   cache.issues.find({repo_id: arg.repo_id}, function(err, issues){
-	  console.log('have we got any cached?');
     if(issues.length){
       issues = {values: issues, repo_id: arg};
-      // Problem:
-      // When we send data from the cache, it's slow as fuck.
-      // Solution:
-      // Get cached data from the browser end, then work out if it's out of date.
-      // If it is, then request the latest from Node.
-      console.log(issues.values.length);
       mainWindow.webContents.send('issues', issues);
     }else{
-      getIssuesFromCache(arg.repo_slug, function(err, issues){
+      RefreshIssueCache(arg.repo_slug, function(err, issues){
         mainWindow.webContents.send('issues', issues);
       });
     }
@@ -176,9 +155,9 @@ ipcMain.on('show-issues', (event, arg) => {
 
 });
 
-ipcMain.on('issues-from-cache', (event, arg) => {
+ipcMain.on('refresh-issue-cache', (event, arg) => {
 
-  getIssuesFromCache(arg.repo_slug, function(err, issues){
+  RefreshIssueCache(arg.repo_slug, function(err, issues){
     mainWindow.webContents.send('issues', issues);
   });
 
