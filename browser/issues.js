@@ -104,7 +104,7 @@ var obj = {
 	},
 
 	calculateContentScrollHeight: function(){
-
+		// TODO: Do this on resize
 		var topHeight = issueContents.querySelector('#issue-contents-head').offsetHeight;
 		var commentHeight = issueContents.querySelector('#issue-new-comment').offsetHeight;
 		var totalHeight = topHeight + commentHeight;

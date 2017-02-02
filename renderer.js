@@ -61,6 +61,9 @@ newComment.addEventListener('click', function(){
 	if(!this.classList.contains('open')){
 		this.classList.add('open');
 		this.querySelector('textarea').focus();
+		setTimeout(function(){
+			issues.calculateContentScrollHeight();
+		}, 300);
 	}
 });
 
@@ -81,5 +84,8 @@ function hasParent(e, id){
 document.addEventListener('click', function(e, elm){
 	if(!hasParent(e.target, 'issue-new-comment')){
 		if(newComment.classList.contains('open')) newComment.classList.remove('open');
+		setTimeout(function(){
+			issues.calculateContentScrollHeight();
+		}, 300);
 	}
 });
