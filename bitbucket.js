@@ -314,9 +314,7 @@ module.exports = {
 				content: msg.content
 			}
 		}, function(err, comment){
-			
 			comment = obj.oldCommentToNew(comment);
-
 			cache.issue.findOne({repo_slug: msg.repo, issue_id: parseInt(msg.issue)}, function(err, issue){
 				issue.comments.push(comment);
 				cache.issue.update({repo_id: issue.repo_id, issue_id: parseInt(msg.issue)}, issue, {upsert: true}, function(err, num, issue){
@@ -325,19 +323,7 @@ module.exports = {
 			});
 			
 		});
-	},
 
-	getEvents: function(){
-		this.doAuthenticatedRequest('repositories/SpencerComms/sms-2016/events', {
-			version: 1
-		}, function(err, comment){
-			
-			comment.events.forEach(function(e){
-				
-			});
-		});
 	}
-
-
 
 }
