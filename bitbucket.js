@@ -15,7 +15,7 @@ module.exports = {
 	 * Returns the URL which the user should be taken to which initiates the authentication process
 	 */
 	getAuthenticateURL: function(){
-		return "https://bitbucket.org/site/oauth2/authorize?client_id=XQZgdxhJ6B65Cnk3UQ&response_type=code";
+		return "https://bitbucket.org/site/oauth2/authorize?client_id=JDnfgLXR42DsAgmfzu&response_type=code";
 	},
 
 	/**
