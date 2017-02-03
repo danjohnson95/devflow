@@ -54,3 +54,76 @@ require('electron').ipcRenderer.on('repos', (event, message) => {
 			break;
 	}
 });
+
+var newComment = document.getElementById('issue-new-comment'),
+	newCommentSubmit = newComment.querySelector('#submit-comment'),
+	newCommentContents = newComment.querySelector('textarea');
+
+newComment.addEventListener('click', function(){
+	if(!this.classList.contains('open')){
+		this.classList.add('open');
+		this.querySelector('textarea').focus();
+		setTimeout(function(){
+			issues.calculateContentScrollHeight();
+		}, 300);
+	}
+});
+
+newCommentContents.addEventListener('input', function(){
+	if(this.value != "" && newCommentSubmit.classList.contains('disabled')){
+		newCommentSubmit.classList.remove('disabled');
+	}else if(this.value == "" && !newCommentSubmit.classList.contains('disabled')){
+		newCommentSubmit.classList.add('disabled');
+	}
+})
+
+function hasParent(e, id){
+
+	if(e.id == id){
+		return true;
+	}else{
+		if(e.parentNode){
+			return hasParent(e.parentNode, id);
+		}else{
+			return false;
+		}
+	}
+
+}
+
+function closeCommentBox(){
+	if(newComment.classList.contains('open')) newComment.classList.remove('open');
+	setTimeout(function(){
+		issues.calculateContentScrollHeight();
+		newCommentContents.value = "";
+	}, 300);
+}
+
+
+document.addEventListener('click', function(e){
+	if(!hasParent(e.target, 'issue-new-comment')){
+		closeCommentBox();
+	}
+});
+
+newCommentSubmit.addEventListener('click', function(e){
+	if(this.classList.contains('disabled')) return;
+	console.log(repoList.getCurrentRepo());
+	console.log(issues.getCurrentIssue());
+	ipcRenderer.send('new-comment', {
+		repo: repoList.getCurrentRepo(),
+		issue: issues.getCurrentIssue(),
+		content: newCommentContents.value
+	});
+});
+
+ipcRenderer.on('new-comment-created', function(e, message){
+	//message = issues.oldCommentToNew(message);
+	issues.appendComment(message);
+	closeCommentBox();
+	issues.scrollToBottomOfComments();
+});
+
+
+
+

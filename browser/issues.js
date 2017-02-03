@@ -19,12 +19,18 @@ const {ipcRenderer} = require('electron'),
 
 var obj = {
 
+	currentIssue: null,
+
 	requestIssues: function(repo){
 		ipcRenderer.send('show-issues', repo);
 	},
 
 	requestOneIssue: function(issue){
 		ipcRenderer.send('show-issue', issue);
+	},
+
+	getCurrentIssue: function(){
+		return obj.currentIssue;
 	},
 
 	loading: function(state){
@@ -103,9 +109,26 @@ var obj = {
 		});
 	},
 
+	calculateContentScrollHeight: function(){
+		// TODO: Do this on resize
+		var topHeight = issueContents.querySelector('#issue-contents-head').offsetHeight;
+		var commentHeight = issueContents.querySelector('#issue-new-comment').offsetHeight;
+		var totalHeight = topHeight + commentHeight;
+		issueContents.querySelector('#issue-contents-scroll').style.height = "calc(100% - "+totalHeight+"px)";
+	},
+
+	scrollToBottomOfComments: function(){
+
+		var height = issueContents.querySelector('#issue-contents-scroll').scrollHeight;
+		issueContents.querySelector('#issue-contents-scroll').scrollTop = height;
+
+	},
+
 	showBareDetails: function(elem){
 		
 		obj.clearComments();
+
+		obj.currentIssue = elem.dataset.id;
 
 		!issueContents.querySelector('.placeholder').classList.contains('hide') ? issueContents.querySelector('.placeholder').classList.add('hide') : "";
 		!issueContents.querySelector('#issue-assignees span').classList.contains('user') ? issueContents.querySelector('#issue-assignees span').classList.remove('user') : "";
@@ -129,6 +152,8 @@ var obj = {
 		if(elem.dataset.assignee != "nobody"){
 			issueContents.querySelector('#issue-assignees span').classList.add('user');
 		}
+
+		obj.calculateContentScrollHeight();
 
 	},
 
@@ -196,12 +221,34 @@ var obj = {
 		if(comments.length < 1) return;
 		comments.forEach(function(e, i){
 			if(e.content.html == "") return;
-			issueCommentTemplate.querySelector('.issue-user img').setAttribute('src', e.user.links.avatar.href);
-			issueCommentTemplate.querySelector('.issue-user .user-name').innerHTML = e.user.display_name;
-			issueCommentTemplate.querySelector('.issue-user .posted-time').innerHTML = e.created_html;
-			issueCommentTemplate.querySelector('p.issue-content').innerHTML = e.content.html;
-			issueComments.innerHTML += issueCommentTemplate.outerHTML;
+			obj.appendComment(e);
 		});
+	},
+
+	oldCommentToNew: function(comment){
+		return obj = {
+			created_html: comment.created_html,
+			content: {
+				html: comment.content
+			},
+			user: {
+				display_name: comment.author_info.display_name,
+				links: {
+					avatar: {
+						href: comment.author_info.avatar
+					}
+				}
+			}
+		};
+	},
+
+	appendComment: function(comment){
+		console.log(comment);
+		issueCommentTemplate.querySelector('.issue-user img').setAttribute('src', comment.user.links.avatar.href);
+		issueCommentTemplate.querySelector('.issue-user .user-name').innerHTML = comment.user.display_name;
+		issueCommentTemplate.querySelector('.issue-user .posted-time').innerHTML = comment.created_html;
+		issueCommentTemplate.querySelector('p.issue-content').innerHTML = comment.content.html;
+		issueComments.innerHTML += issueCommentTemplate.outerHTML;
 	},
 
 	insertAttachments: function(attachments){
