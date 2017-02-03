@@ -1,7 +1,6 @@
 const 	request = require('request'),
 		timeAgo = require('./timeago.js'),
-		cache = require('./cache.js'),
-		config = require('./config.js');
+		cache = require('./cache.js');
 
 module.exports = {
 
@@ -107,12 +106,8 @@ module.exports = {
 		cache.config.findOne({type: 'refresh_token'}, function(err, key){
 			if(!key) throw "No refresh token found";
 			request({
-				url:'https://bitbucket.org/site/oauth2/access_token',
+				url:'https://devflow.danjohnson.xyz/api/v1/access_token.php',
 				method:'post',
-				auth: {
-					user: config.key,
-					pass: config.secret
-				},
 				form: {
 					grant_type: 'refresh_token',
 					refresh_token: key.value
@@ -135,12 +130,8 @@ module.exports = {
 			resp = {};
 
 		request({
-		    url: 'https://bitbucket.org/site/oauth2/access_token',
+		    url: 'https://devflow.danjohnson.xyz/api/v1/access_token.php',
 		    method:'post',
-		    auth: {
-		    	user: config.key,
-		    	pass: config.secret
-		    },
 		    form: {
 		    	grant_type: 'authorization_code',
 		    	code: code
@@ -229,7 +220,6 @@ module.exports = {
 				repo_id: repo_id,
 				repo_slug: repo_slug
 			};
-			console.log('where repo_id='+repo_id+' and issue_id='+parseInt(issue_id));
 			cache.issue.update({repo_id: repo_id, issue_id: parseInt(issue_id)}, obj, {upsert: true}, function(err, num, issue){
 				if(err) throw err;
 				callback(null, obj);
@@ -274,7 +264,6 @@ module.exports = {
 	},
 
 	postNewIssue: function(obj, callback){
-		console.log('post new issue');
 		// TODO: Should really do some serverside checks here.
 		this.doAuthenticatedRequest('repositories/'+obj.repo+'/issues', {
 			method: 'post',
@@ -289,7 +278,6 @@ module.exports = {
 				}
 			}
 		}, function(err, newIssue){
-			console.log(err);
 			// Now cache it.
 			newIssue.updated_html = timeAgo.html(newIssue.updated_on);
 	 		newIssue.repo_id = newIssue.repository.uuid;
@@ -326,9 +314,7 @@ module.exports = {
 				content: msg.content
 			}
 		}, function(err, comment){
-			console.log(err);
 			comment = obj.oldCommentToNew(comment);
-
 			cache.issue.findOne({repo_slug: msg.repo, issue_id: parseInt(msg.issue)}, function(err, issue){
 				issue.comments.push(comment);
 				cache.issue.update({repo_id: issue.repo_id, issue_id: parseInt(msg.issue)}, issue, {upsert: true}, function(err, num, issue){
@@ -337,8 +323,7 @@ module.exports = {
 			});
 			
 		});
+
 	}
-
-
 
 }
