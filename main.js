@@ -22,9 +22,6 @@ const cache = require('./cache.js');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-//{"type":"access_token","value":"5GfcoW4lj4zEhivzvL2EEJOGnsMD9DPXFoDLa_H8Zip-9JyOIIv7oAH0JeG6fXnHZBP4J1QmOcQA3BExVw==","_id":"YTNIZfdMJory1Xxd"}
-//{"type":"refresh_token","value":"mcn6ZeUE4cWVMZ4ENP","_id":"qvdoXp5Ip56VRR1D"}
-
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -49,7 +46,6 @@ function createWindow () {
 
       ipcMain.on('bitbucket-code', function(e, code){
         //BitBucket.setRefreshToken(code, function(){
-          console.log('it was set');
           BitBucket.requestAccessToken(code, function(){
             launchApp();
           });
