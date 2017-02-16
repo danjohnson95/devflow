@@ -1,6 +1,6 @@
 # Devflow
 
-Devflow is a desktop client supported on macOS, Windows and Linux.
+Devflow is a desktop client for BitBucket, joining Issue tracking and Git collaboration into one easy process. Supported on macOS, Windows and Linux, build using Electron.
 
 ![Screenshot](/devflow-mockup.jpg)
 
